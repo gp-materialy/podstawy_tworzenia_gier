@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karta Projektanta - Na ratunek AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --orange:#F58220;--purple:#6F499D;
+    --orange-light:#F8E2CB;--purple-light:#D4CFE5;
+    --orange-mid:#EEB27C;--purple-mid:#9786BA;
+    --dark:#2D2D2D;--gray-bg:#F5F5F5;
+  }
+  body{
+    font-family:'Nunito',sans-serif;color:var(--dark);
+    min-height:100vh;
+    background:var(--gray-bg);
+    background-image:
+      radial-gradient(circle at 10% 20%,rgba(245,130,32,.08) 0%,transparent 50%),
+      radial-gradient(circle at 90% 80%,rgba(111,73,157,.08) 0%,transparent 50%);
+  }
+
+  /* HEADER */
+  .header{
+    background:linear-gradient(135deg,var(--orange) 0%,#e06f0a 100%);
+    padding:1.5rem 2rem;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .header::before{
+    content:'';position:absolute;inset:0;
+    background:
+      repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,.04) 20px,rgba(255,255,255,.04) 40px);
+  }
+  .header h1{
+    font-family:'Baloo 2',cursive;color:#fff;
+    font-size:clamp(1.6rem,5vw,2.4rem);font-weight:800;
+    position:relative;text-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .header p{
+    color:rgba(255,255,255,.9);font-size:.95rem;margin-top:.3rem;
+    position:relative;font-weight:600;
+  }
+
+  /* ROCKET DECORATION */
+  .rocket{
+    position:absolute;right:1.5rem;top:50%;transform:translateY(-50%) rotate(-30deg);
+    font-size:2.2rem;opacity:.7;animation:float 3s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(-50%) rotate(-30deg)}50%{transform:translateY(calc(-50% - 8px)) rotate(-30deg)}}
+
+  /* MAIN */
+  .main{max-width:700px;margin:0 auto;padding:1.5rem 1rem 3rem}
+
+  /* INTRO CARD */
+  .intro{
+    background:#fff;border-radius:16px;padding:1.4rem 1.6rem;
+    margin-bottom:1.5rem;
+    border-left:5px solid var(--purple);
+    box-shadow:0 2px 12px rgba(111,73,157,.1);
+  }
+  .intro p{line-height:1.6;font-size:.95rem}
+  .intro strong{color:var(--purple)}
+
+  /* FORM CARD */
+  .card{
+    background:#fff;border-radius:20px;
+    box-shadow:0 4px 24px rgba(0,0,0,.07);
+    overflow:hidden;
+  }
+  .card-header{
+    background:linear-gradient(135deg,var(--purple) 0%,#5a3a87 100%);
+    padding:1.2rem 1.6rem;position:relative;overflow:hidden;
+  }
+  .card-header::after{
+    content:'';position:absolute;right:-30px;top:-30px;
+    width:100px;height:100px;border-radius:50%;
+    background:rgba(255,255,255,.06);
+  }
+  .card-header h2{
+    font-family:'Baloo 2',cursive;color:#fff;
+    font-size:1.4rem;font-weight:700;position:relative;
+  }
+  .card-body{padding:1.6rem}
+
+  /* FIELD GROUP */
+  .field{margin-bottom:1.4rem;position:relative}
+  .field:last-child{margin-bottom:0}
+  .field-label{
+    display:flex;align-items:center;gap:.5rem;
+    margin-bottom:.5rem;
+  }
+  .field-icon{
+    width:36px;height:36px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.15rem;flex-shrink:0;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+  }
+  .field-icon.orange{background:var(--orange-light);color:var(--orange)}
+  .field-icon.purple{background:var(--purple-light);color:var(--purple)}
+  .field-label span{
+    font-weight:700;font-size:.95rem;color:var(--dark);
+  }
+  .field input,.field textarea{
+    width:100%;border:2px solid #e0e0e0;border-radius:12px;
+    padding:.75rem 1rem;font-family:'Nunito',sans-serif;
+    font-size:1rem;color:var(--dark);
+    transition:border-color .2s,box-shadow .2s;
+    background:#fafafa;
+  }
+  .field input:focus,.field textarea:focus{
+    outline:none;border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(245,130,32,.15);
+    background:#fff;
+  }
+  .field textarea{resize:vertical;min-height:60px}
+  .field input::placeholder,.field textarea::placeholder{
+    color:#b0b0b0;font-style:italic;
+  }
+
+  /* NUMBER INLINE */
+  .inline-group{display:flex;gap:.75rem;align-items:center}
+  .inline-group input[type="text"]{flex:1}
+  .inline-group .number-wrap{
+    display:flex;align-items:center;gap:.4rem;
+    background:#fafafa;border:2px solid #e0e0e0;border-radius:12px;
+    padding:.5rem .75rem;transition:border-color .2s;
+    flex-shrink:0;
+  }
+  .inline-group .number-wrap:focus-within{
+    border-color:var(--purple);box-shadow:0 0 0 3px rgba(111,73,157,.12);
+  }
+  .inline-group .number-wrap label{font-size:.85rem;font-weight:600;color:var(--purple);white-space:nowrap}
+  .inline-group .number-wrap input{
+    width:50px;border:none;background:transparent;
+    text-align:center;font-size:1.1rem;font-weight:700;
+    color:var(--purple);font-family:'Baloo 2',cursive;
+  }
+  .inline-group .number-wrap input:focus{outline:none}
+
+  /* BUTTONS */
+  .actions{
+    display:flex;gap:.75rem;margin-top:1.8rem;
+    flex-wrap:wrap;justify-content:center;
+  }
+  .btn{
+    padding:.8rem 1.8rem;border:none;border-radius:12px;
+    font-family:'Baloo 2',cursive;font-size:1rem;font-weight:700;
+    cursor:pointer;transition:transform .15s,box-shadow .15s;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn:active{transform:translateY(0)}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--orange),#e06f0a);
+    color:#fff;box-shadow:0 4px 14px rgba(245,130,32,.35);
+  }
+  .btn-primary:hover{box-shadow:0 6px 20px rgba(245,130,32,.45)}
+  .btn-secondary{
+    background:linear-gradient(135deg,var(--purple),#5a3a87);
+    color:#fff;box-shadow:0 4px 14px rgba(111,73,157,.3);
+  }
+  .btn-secondary:hover{box-shadow:0 6px 20px rgba(111,73,157,.4)}
+  .btn-outline{
+    background:#fff;color:var(--dark);
+    border:2px solid #ddd;
+  }
+  .btn-outline:hover{border-color:var(--orange);color:var(--orange)}
+
+  /* PREVIEW OVERLAY */
+  .preview-overlay{
+    display:none;position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+    justify-content:center;align-items:center;padding:1rem;
+  }
+  .preview-overlay.active{display:flex}
+  .preview-card{
+    background:#fff;border-radius:20px;max-width:600px;width:100%;
+    max-height:90vh;overflow-y:auto;padding:2rem;position:relative;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);
+    animation:slideUp .3s ease-out;
+  }
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+  .preview-close{
+    position:absolute;top:1rem;right:1rem;
+    width:36px;height:36px;border-radius:50%;border:none;
+    background:var(--gray-bg);cursor:pointer;font-size:1.2rem;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .2s;
+  }
+  .preview-close:hover{background:#e0e0e0}
+  .preview-title{
+    font-family:'Baloo 2',cursive;font-size:1.5rem;
+    color:var(--purple);margin-bottom:1.2rem;
+    padding-bottom:.8rem;border-bottom:3px solid var(--orange-light);
+  }
+  .preview-row{
+    display:flex;gap:.6rem;margin-bottom:1rem;
+    align-items:flex-start;
+  }
+  .preview-row .emoji{font-size:1.2rem;flex-shrink:0;margin-top:.1rem}
+  .preview-row .label{font-weight:700;color:var(--purple);font-size:.85rem;text-transform:uppercase;letter-spacing:.03em}
+  .preview-row .value{font-size:1.05rem;color:var(--dark);margin-top:.15rem}
+  .preview-row .empty{color:#bbb;font-style:italic}
+  .preview-actions{
+    display:flex;gap:.75rem;margin-top:1.5rem;
+    justify-content:center;flex-wrap:wrap;
+  }
+
+  /* PRINT */
+  @media print{
+    body{background:#fff !important}
+    .header,.intro,.actions,.preview-overlay,.btn{display:none !important}
+    .card{box-shadow:none;border:2px solid #ddd}
+    .card-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .field input,.field textarea,.inline-group .number-wrap input{
+      border-color:#ccc;background:#fff;
+    }
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:500px){
+    .card-body{padding:1.2rem}
+    .inline-group{flex-direction:column;align-items:stretch}
+    .inline-group .number-wrap{justify-content:center}
+    .actions{flex-direction:column}
+    .btn{justify-content:center}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎮 Karta Projektanta</h1>
+  <p>Na ratunek AI - zaprojektuj swoją misję!</p>
+  <div class="rocket">🚀</div>
+</div>
+
+<div class="main">
+  <div class="intro">
+    <p>Zanim zaczniesz programować, wypełnij kartę projektanta. <strong>Wymyśl własną fabułę</strong> - Ty decydujesz, kogo ratujemy, kto jest wrogiem i jak wygląda Twoja gra!</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>🗺️ Moja misja ratunkowa</h2>
+    </div>
+    <div class="card-body">
+
+      <div class="field">
+        <div class="field-label">
+          <div class="field-icon orange">🏷️</div>
+          <span>Nazwa mojej gry</span>
+        </div>
+        <input type="text" id="f-name" placeholder="np. Kosmiczna Ucieczka, Lodowa Misja...">
+      </div>
+
+      <div class="field">
+        <div class="field-label">
+          <div class="field-icon purple">🦸</div>
+          <span>Kim jest mój bohater?</span>
+        </div>
+        <input type="text" id="f-hero" placeholder="np. astronauta, rycerz, kot-ninja...">
+      </div>
+
+      <div class="field">
+        <div class="field-label">
+          <div class="field-icon orange">👾</div>
+          <span>Kto albo co jest zagrożeniem?</span>
+        </div>
+        <input type="text" id="f-enemy" placeholder="np. kosmiczny potwór, lawa, duchy...">
+      </div>
+
+      <div class="field">
+        <div class="field-label">
+          <div class="field-icon purple">💎</div>
+          <span>Co zbieram i ile trzeba zebrać?</span>
+        </div>
+        <div class="inline-group">
+          <input type="text" id="f-collect" placeholder="np. kryształy, klucze, monety...">
+          <div class="number-wrap">
+            <label for="f-amount">Ile:</label>
+            <input type="text" id="f-amount" value="5" maxlength="3">
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">
+          <div class="field-icon orange">🧱</div>
+          <span>Co blokuje mi drogę?</span>
+        </div>
+        <input type="text" id="f-obstacle" placeholder="np. mur, laserowe pole, skały, drzewa...">
+      </div>
+
+      <div class="field">
+        <div class="field-label">
+          <div class="field-icon purple">🎯</div>
+          <span>Kogo albo co ratuję na końcu?</span>
+        </div>
+        <input type="text" id="f-goal" placeholder="np. robota AI, księżniczkę, planetę...">
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="showPreview()">👀 Podgląd karty</button>
+        <button class="btn btn-secondary" onclick="printCard()">🖨️ Drukuj</button>
+        <button class="btn btn-outline" onclick="clearAll()">🗑️ Wyczyść</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="preview-overlay" id="preview">
+  <div class="preview-card">
+    <button class="preview-close" onclick="closePreview()">✕</button>
+    <div class="preview-title" id="prev-title">Moja gra</div>
+    <div id="prev-content"></div>
+    <div class="preview-actions">
+      <button class="btn btn-secondary" onclick="printCard()">🖨️ Drukuj</button>
+      <button class="btn btn-outline" onclick="closePreview()">Zamknij</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const fields = [
+  {id:'f-hero',   label:'Bohater',     emoji:'🦸'},
+  {id:'f-enemy',  label:'Zagrożenie',  emoji:'👾'},
+  {id:'f-collect',label:'Zbieram',     emoji:'💎', extra:'f-amount'},
+  {id:'f-obstacle',label:'Przeszkoda', emoji:'🧱'},
+  {id:'f-goal',   label:'Ratuję',      emoji:'🎯'},
+];
+
+function showPreview(){
+  const name = document.getElementById('f-name').value.trim();
+  document.getElementById('prev-title').textContent = name || 'Moja gra';
+  let html = '';
+  fields.forEach(f=>{
+    let val = document.getElementById(f.id).value.trim();
+    if(f.extra){
+      const amt = document.getElementById(f.extra).value.trim();
+      if(val && amt) val += ' (trzeba zebrać: ' + amt + ')';
+    }
+    html += '<div class="preview-row">'
+      + '<div class="emoji">' + f.emoji + '</div>'
+      + '<div><div class="label">' + f.label + '</div>'
+      + '<div class="' + (val ? 'value' : 'value empty') + '">'
+      + (val || 'nie wpisano') + '</div></div></div>';
+  });
+  document.getElementById('prev-content').innerHTML = html;
+  document.getElementById('preview').classList.add('active');
+}
+
+function closePreview(){
+  document.getElementById('preview').classList.remove('active');
+}
+
+function printCard(){ window.print(); }
+
+function clearAll(){
+  ['f-name','f-hero','f-enemy','f-collect','f-obstacle','f-goal'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-amount').value = '5';
+}
+
+document.getElementById('preview').addEventListener('click', function(e){
+  if(e.target === this) closePreview();
+});
+</script>
+</body>
+</html>

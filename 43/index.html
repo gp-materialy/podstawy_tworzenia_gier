@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planer Minecraft Education</title>
+<style>
+:root { --cell: 16px; }
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: #2a2a2a;
+}
+
+#sidebar {
+    width: 280px;
+    overflow-y: auto;
+    background: #3a3a3a;
+    border-right: 3px solid #555;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #666 #3a3a3a;
+}
+
+#sidebar h1 {
+    margin: 0 0 2px 0;
+    font-size: 20px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+#sidebar .subtitle {
+    color: #aaa;
+    font-size: 11px;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.tool-card {
+    background: #4a4a4a;
+    border: 2px solid #666;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    flex-shrink: 0;
+}
+.tool-card:hover { border-color: #8c8; background: #525252; }
+.tool-card:active { background: #5a6a5a; }
+
+.thumb {
+    width: 56px;
+    height: 56px;
+    border: 2px solid #888;
+    border-radius: 4px;
+    flex-shrink: 0;
+    image-rendering: pixelated;
+}
+
+.tool-info { flex: 1; min-width: 0; }
+.tool-info h3 { margin: 0 0 4px 0; font-size: 14px; color: #fff; }
+
+.tool-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 3px;
+    font-size: 11px;
+    color: #ccc;
+}
+.tool-row label { white-space: nowrap; }
+.tool-row input {
+    width: 44px;
+    padding: 2px 4px;
+    border: 1px solid #777;
+    border-radius: 3px;
+    background: #333;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+}
+.tool-row input:focus { outline: none; border-color: #8c8; }
+
+.info-box {
+    background: #4a4a4a;
+    border: 2px solid #7a6a3a;
+    border-radius: 8px;
+    padding: 10px;
+    flex-shrink: 0;
+}
+.info-box h4 { margin: 0 0 6px 0; color: #e8d56a; font-size: 13px; }
+.info-box ul { margin: 0; padding-left: 18px; color: #ccc; font-size: 11px; line-height: 1.6; }
+
+#coordsPanel {
+    background: #4a4a4a;
+    border: 2px solid #666;
+    border-radius: 8px;
+    padding: 10px;
+    color: #ccc;
+    font-size: 11px;
+    max-height: 180px;
+    overflow-y: auto;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+#coordsPanel b { color: #fff; }
+#coordsPanel hr { border: none; border-top: 1px solid #666; margin: 5px 0; }
+
+#main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#map-wrapper { position: relative; padding: 30px; }
+
+#map {
+    position: relative;
+    width: 800px;
+    height: 800px;
+    border: 2px solid #333;
+    overflow: visible;
+}
+
+.axis-x {
+    position: absolute; left: 0; top: 50%;
+    width: 100%; height: 2px;
+    background: rgba(255,255,255,0.5);
+    z-index: 2; pointer-events: none;
+}
+.axis-z {
+    position: absolute; top: 0; left: 50%;
+    width: 2px; height: 100%;
+    background: rgba(255,255,255,0.5);
+    z-index: 2; pointer-events: none;
+}
+
+.grid-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 1;
+    background-image:
+        linear-gradient(rgba(255,255,255,.10) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.10) 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+.object {
+    position: absolute;
+    cursor: move;
+    box-sizing: border-box;
+    z-index: 10;
+    image-rendering: pixelated;
+    overflow: visible;
+}
+
+.object-label {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,.75);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 12;
+}
+
+.corner {
+    position: absolute;
+    background: rgba(20,20,20,.85);
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: inherit;
+    border: 1px solid rgba(255,255,255,.25);
+    line-height: 1.3;
+}
+
+/* Simple corner positions pinned to object corners */
+.corner.tl { right: 100%; bottom: 100%; margin-right: 2px; margin-bottom: 2px; }
+.corner.tr { left: 100%; bottom: 100%; margin-left: 2px; margin-bottom: 2px; }
+.corner.bl { right: 100%; top: 100%; margin-right: 2px; margin-top: 2px; }
+.corner.br { left: 100%; top: 100%; margin-left: 2px; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h1>OBIEKTY</h1>
+    <div class="subtitle">Kliknij obiekt aby dodać na siatkę.<br>Wymiary możesz zmienić ręcznie.</div>
+
+    <div class="tool-card" onclick="addObject('well')">
+        <canvas class="thumb" id="thumbWell" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Studnia</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="wellW" type="number" value="4" min="1" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="wellH" type="number" value="4" min="1" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div class="tool-card" onclick="addObject('house')">
+        <canvas class="thumb" id="thumbHouse" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Dom</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="houseW" type="number" value="10" min="1" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="houseH" type="number" value="6" min="1" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div class="tool-card" onclick="addObject('barn')">
+        <canvas class="thumb" id="thumbBarn" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Stodoła</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="barnW" type="number" value="15" min="1" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="barnH" type="number" value="10" min="1" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div class="tool-card" onclick="addObject('pen')">
+        <canvas class="thumb" id="thumbPen" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Zagroda</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="penW" type="number" value="10" min="1" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="penH" type="number" value="10" min="1" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div class="tool-card" onclick="addObject('stable')">
+        <canvas class="thumb" id="thumbStable" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Stajnia</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="stableW" type="number" value="12" min="1" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="stableH" type="number" value="8" min="1" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div class="tool-card" onclick="addObject('potato')">
+        <canvas class="thumb" id="thumbPotato" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Pole uprawne</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="potatoW" type="number" value="8" min="1" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="potatoH" type="number" value="8" min="1" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div class="tool-card" onclick="addObject('apiary')">
+        <canvas class="thumb" id="thumbApiary" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Pasieka</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="apiaryW" type="number" value="10" min="1" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="apiaryH" type="number" value="10" min="1" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div class="tool-card" onclick="addObject('cherry')">
+        <canvas class="thumb" id="thumbCherry" width="56" height="56"></canvas>
+        <div class="tool-info">
+            <h3>Sad</h3>
+            <div class="tool-row"><label>Szer. (X):</label><input id="cherryW" type="number" value="5" min="5" step="5" onclick="event.stopPropagation()"></div>
+            <div class="tool-row"><label>Dł. (Z):</label><input id="cherryH" type="number" value="5" min="5" step="5" onclick="event.stopPropagation()"></div>
+        </div>
+    </div>
+
+    <div id="coordsPanel">Brak obiektów na mapie.</div>
+
+    <div class="info-box">
+        <h4>Jak to działa?</h4>
+        <ul>
+            <li>Kliknij obiekt z panelu — pojawi się na (0,0)</li>
+            <li>Możesz go przeciągać w inne miejsce</li>
+            <li>Kliknij obiekt — narożniki na wierzchu</li>
+            <li>Podwójne kliknięcie — usuń obiekt</li>
+        </ul>
+    </div>
+</div>
+
+<div id="main">
+    <div id="map-wrapper">
+        <div id="map">
+            <canvas id="grassCanvas" width="800" height="800" style="position:absolute;top:0;left:0;pointer-events:none;z-index:0;"></canvas>
+            <div class="grid-overlay"></div>
+            <div class="axis-x"></div>
+            <div class="axis-z"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const CELL = 16;
+const HALF = 25;
+const map = document.getElementById("map");
+const coordsPanel = document.getElementById("coordsPanel");
+
+// Track which object is "selected" (clicked) — its corners go on top
+let selectedObj = null;
+const BASE_Z = 10;
+const SELECTED_Z = 50;
+
+function selectObject(obj) {
+    // Deselect previous
+    if (selectedObj && selectedObj !== obj) {
+        selectedObj.style.zIndex = BASE_Z;
+    }
+    selectedObj = obj;
+    obj.style.zIndex = SELECTED_Z;
+}
+
+// =================== SEEDED RANDOM ===================
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+// =================== GRASS BACKGROUND ===================
+function drawGrassBackground() {
+    const canvas = document.getElementById("grassCanvas");
+    const ctx = canvas.getContext("2d");
+    const g = ["#5b8731","#4d7a2a","#6b9b3a","#5a8a30","#4e7d2d","#63923a","#578433","#4a7528","#6da03c","#5c8d35"];
+    const d = ["#4a7228","#3d6521","#507a2c","#436d24","#4e782b","#3b6320"];
+    const r = mulberry32(42);
+    for (let y = 0; y < 800; y += 4) {
+        for (let x = 0; x < 800; x += 4) {
+            ctx.fillStyle = g[Math.floor(r() * g.length)];
+            ctx.fillRect(x, y, 4, 4);
+            if (r() < 0.15) { ctx.fillStyle = d[Math.floor(r() * d.length)]; ctx.fillRect(x, y, 4, 4); }
+        }
+    }
+}
+
+// =================== THUMBNAIL DRAWING ===================
+function drawThumb(id, drawFn) {
+    const c = document.getElementById(id);
+    const ctx = c.getContext("2d");
+    const s = mulberry32(id.charCodeAt(5)*137+7);
+    drawFn(ctx, 56, 56, s);
+}
+
+function fillPixels(ctx, x0, y0, w, h, colors, rng, pix=4) {
+    for (let y = y0; y < y0+h; y += pix)
+        for (let x = x0; x < x0+w; x += pix) {
+            ctx.fillStyle = colors[Math.floor(rng() * colors.length)];
+            ctx.fillRect(x, y, pix, pix);
+        }
+}
+
+const STONE = ["#8a8a8a","#999","#7a7a7a","#929292","#858585","#9a9a9a","#808080"];
+const WATER = ["#2979c4","#3388d4","#1e6ab0","#2580cc","#3090dd","#1d65a8"];
+const LOG   = ["#6b4226","#7b522e","#5a3620","#6e4528","#7a5030","#5c3822"];
+const PLANK = ["#c49a56","#d0a66a","#b8904c","#c89e5a","#d4aa6e","#bc9450"];
+const DWOOD = ["#4a311d","#553a22","#3f2918","#4e3420","#583d25","#422b1a"];
+const HAY   = ["#d7c256","#c3af44","#ddc85e","#bfab40","#d4be50","#cbb648"];
+const FENCE = ["#a5743d","#b0804a","#9a6a35","#ad7c45","#b88850","#a07038"];
+const DIRT  = ["#8b6b3d","#7a5c30","#966f3e","#6e5028","#845f35","#9a7642"];
+const FMLD  = ["#5a4020","#4e3618","#634828","#56391c","#6a5030","#4a3015"];
+const PTGRN = ["#3a7a20","#2e6618","#459028","#347020","#4a9a30","#2a5c15"];
+const FLWR  = ["#e84040","#e86040","#d83080","#f0c020","#e0e040","#f08030","#d050d0","#40a0f0","#f06080"];
+const BGRN  = ["#5b8731","#4d7a2a","#6b9b3a","#5a8a30"];
+const CPINK = ["#ffb7c5","#ff9cb0","#ffc8d6","#ff87a0","#ffd0de","#e890a8"];
+const CBARK = ["#5a3028","#4a2520","#6a3830","#503028"];
+
+function thumbWell(ctx, w, h, r) {
+    fillPixels(ctx, 0, 0, w, h, STONE, r);
+    fillPixels(ctx, 12, 12, w-24, h-24, WATER, r);
+}
+function thumbHouse(ctx, w, h, r) {
+    fillPixels(ctx, 0, 0, w, h, LOG, r);
+    fillPixels(ctx, 10, 10, w-20, h-20, PLANK, r);
+}
+function thumbBarn(ctx, w, h, r) {
+    fillPixels(ctx, 0, 0, w, h, DWOOD, r);
+    fillPixels(ctx, 10, 10, w-20, h-20, HAY, r);
+}
+function thumbPen(ctx, w, h, r) {
+    fillPixels(ctx, 0, 0, w, h, BGRN, r);
+    fillPixels(ctx, 0, 0, w, 8, FENCE, r);
+    fillPixels(ctx, 0, h-8, w, 8, FENCE, r);
+    fillPixels(ctx, 0, 0, 8, h, FENCE, r);
+    fillPixels(ctx, w-8, 0, 8, h, FENCE, r);
+    ctx.fillStyle = "#7a5228";
+    for (let p of [[0,0],[w-8,0],[0,h-8],[w-8,h-8]]) ctx.fillRect(p[0],p[1],8,8);
+}
+function thumbStable(ctx, w, h, r) {
+    fillPixels(ctx, 0, 0, w, h, LOG, r);
+    const spruce = ["#6b5a3a","#7a6844","#5e4e30","#8a7850","#6e5c3c"];
+    fillPixels(ctx, 10, 10, w-20, h-20, spruce, r);
+    fillPixels(ctx, 12, h-18, w-24, 6, HAY, r);
+}
+function thumbPotato(ctx, w, h, r) {
+    for (let y = 0; y < h; y += 4) {
+        for (let x = 0; x < w; x += 4) {
+            const row = Math.floor(y / 8);
+            ctx.fillStyle = row%2===0 ? FMLD[Math.floor(r()*FMLD.length)]
+                : (r()<0.4 ? PTGRN[Math.floor(r()*PTGRN.length)] : DIRT[Math.floor(r()*DIRT.length)]);
+            ctx.fillRect(x, y, 4, 4);
+        }
+    }
+    ctx.fillStyle = "#3070b0";
+    for (let x = 0; x < w; x += 16) ctx.fillRect(x, 0, 2, h);
+}
+function thumbApiary(ctx, w, h, r) {
+    fillPixels(ctx, 0, 0, w, h, BGRN, r);
+    for (let i = 0; i < 30; i++) {
+        ctx.fillStyle = FLWR[Math.floor(r()*FLWR.length)];
+        ctx.fillRect(Math.floor(r()*w/4)*4, Math.floor(r()*h/4)*4, 4, 4);
+    }
+    for (let bx of [8, 32]) {
+        ctx.fillStyle = "#c8a050";
+        ctx.fillRect(bx, 20, 12, 12);
+        ctx.fillStyle = "#8a6830";
+        ctx.fillRect(bx, 20, 12, 2); ctx.fillRect(bx, 28, 12, 2);
+        ctx.fillStyle = "#3a2a10";
+        ctx.fillRect(bx+4, 24, 4, 4);
+    }
+}
+function thumbCherry(ctx, w, h, r) {
+    fillPixels(ctx, 0, 0, w, h, BGRN, r);
+    for (let i = 0; i < 15; i++) {
+        ctx.fillStyle = CPINK[Math.floor(r()*CPINK.length)];
+        ctx.fillRect(Math.floor(r()*w/4)*4, Math.floor(r()*h/4)*4, 4, 4);
+    }
+    // One fixed-size tree in center of thumbnail
+    const tx = 28, ty = 28;
+    ctx.fillStyle = CBARK[Math.floor(r()*CBARK.length)];
+    ctx.fillRect(tx-2, ty+2, 4, 10);
+    for (let dy = -8; dy <= 4; dy += 4)
+        for (let dx = -8; dx <= 8; dx += 4)
+            if (Math.abs(dx)+Math.abs(dy)<14 && r()<0.85) {
+                ctx.fillStyle = CPINK[Math.floor(r()*CPINK.length)];
+                ctx.fillRect(tx+dx, ty+dy, 4, 4);
+            }
+}
+
+// =================== MAP OBJECT TEXTURES ===================
+// Fixed tree size for cherry orchard: 5 blocks = 80px, one tree per 5x5 section
+const TREE_BLOCK = 5; // blocks per tree cell
+const TREE_PX = TREE_BLOCK * CELL; // 80px
+
+function drawCherryTree(ctx, cx, cy, r) {
+    // Fixed-size tree centered at (cx, cy)
+    // Trunk: 8px wide, 16px tall
+    ctx.fillStyle = CBARK[Math.floor(r()*CBARK.length)];
+    ctx.fillRect(cx-4, cy+4, 8, 20);
+    // Canopy: ~24px radius circle of pink
+    for (let dy = -20; dy <= 8; dy += 4) {
+        for (let dx = -20; dx <= 20; dx += 4) {
+            const dist = Math.abs(dx) + Math.abs(dy);
+            if (dist < 28 && r() < 0.82) {
+                ctx.fillStyle = CPINK[Math.floor(r()*CPINK.length)];
+                ctx.fillRect(cx+dx, cy+dy, 4, 4);
+            }
+        }
+    }
+}
+
+function createObjectTexture(w, h, type) {
+    const pw = w * CELL, ph = h * CELL;
+    const canvas = document.createElement("canvas");
+    canvas.width = pw; canvas.height = ph;
+    const ctx = canvas.getContext("2d");
+    const r = mulberry32(type.charCodeAt(0)*31 + w*7 + h*13);
+    const bw = CELL;
+
+    if (type === "Studnia") {
+        for (let y = 0; y < ph; y += 4) for (let x = 0; x < pw; x += 4) {
+            const bord = x<bw||x>=pw-bw||y<bw||y>=ph-bw;
+            ctx.fillStyle = bord ? STONE[Math.floor(r()*STONE.length)] : WATER[Math.floor(r()*WATER.length)];
+            ctx.fillRect(x,y,4,4);
+        }
+    }
+
+    if (type === "Dom") {
+        for (let y = 0; y < ph; y += 4) for (let x = 0; x < pw; x += 4) {
+            const bord = x<bw||x>=pw-bw||y<bw||y>=ph-bw;
+            if (bord) {
+                ctx.fillStyle = LOG[Math.floor(r()*LOG.length)];
+                if ((y+x)%12<2) ctx.fillStyle = "#4a2e18";
+            } else {
+                ctx.fillStyle = PLANK[Math.floor(r()*PLANK.length)];
+                if (y%CELL<2) ctx.fillStyle = "#a07838";
+                if (x%(CELL*2)<2) ctx.fillStyle = "#9a7030";
+            }
+            ctx.fillRect(x,y,4,4);
+        }
+    }
+
+    if (type === "Stodoła") {
+        for (let y = 0; y < ph; y += 4) for (let x = 0; x < pw; x += 4) {
+            const bord = x<bw||x>=pw-bw||y<bw||y>=ph-bw;
+            if (bord) { ctx.fillStyle = DWOOD[Math.floor(r()*DWOOD.length)]; if(y%8<2) ctx.fillStyle="#352010"; }
+            else { ctx.fillStyle = HAY[Math.floor(r()*HAY.length)]; if((x+y)%12<2) ctx.fillStyle="#b09a38"; }
+            ctx.fillRect(x,y,4,4);
+        }
+    }
+
+    if (type === "Zagroda") {
+        const fw = 6, ps = 10;
+        for (let x = 0; x < pw; x += 4) {
+            for (let ry of [0, fw+2]) {
+                ctx.fillStyle = FENCE[Math.floor(r()*FENCE.length)];
+                ctx.fillRect(x, ry, 4, fw);
+                ctx.fillRect(x, ph-fw-ry, 4, fw);
+            }
+        }
+        for (let y = 0; y < ph; y += 4) {
+            for (let rx of [0, fw+2]) {
+                ctx.fillStyle = FENCE[Math.floor(r()*FENCE.length)];
+                ctx.fillRect(rx, y, fw, 4);
+                ctx.fillRect(pw-fw-rx, y, fw, 4);
+            }
+        }
+        for (let x = 0; x < pw; x += CELL*2) {
+            ctx.fillStyle = "#7a5228"; ctx.fillRect(x,0,ps,ps+6); ctx.fillRect(x,ph-ps-6,ps,ps+6);
+        }
+        for (let y = 0; y < ph; y += CELL*2) {
+            ctx.fillStyle = "#7a5228"; ctx.fillRect(0,y,ps+6,ps); ctx.fillRect(pw-ps-6,y,ps+6,ps);
+        }
+    }
+
+    if (type === "Stajnia") {
+        const spruce = ["#6b5a3a","#7a6844","#5e4e30","#8a7850","#6e5c3c","#746040"];
+        for (let y = 0; y < ph; y += 4) for (let x = 0; x < pw; x += 4) {
+            const bord = x<bw||x>=pw-bw||y<bw||y>=ph-bw;
+            if (bord) {
+                ctx.fillStyle = LOG[Math.floor(r()*LOG.length)];
+                if (x%12<2) ctx.fillStyle = "#3e2414";
+            } else {
+                ctx.fillStyle = spruce[Math.floor(r()*spruce.length)];
+                if (y%CELL<2) ctx.fillStyle = "#4a3a20";
+            }
+            ctx.fillRect(x,y,4,4);
+        }
+        for (let y = ph-bw-12; y < ph-bw; y += 4)
+            for (let x = bw; x < pw-bw; x += 4) {
+                ctx.fillStyle = HAY[Math.floor(r()*HAY.length)];
+                ctx.fillRect(x,y,4,4);
+            }
+    }
+
+    if (type === "Pole uprawne") {
+        for (let y = 0; y < ph; y += 4) for (let x = 0; x < pw; x += 4) {
+            const row = Math.floor(y / 8);
+            ctx.fillStyle = row%2===0 ? FMLD[Math.floor(r()*FMLD.length)]
+                : (r()<0.35 ? PTGRN[Math.floor(r()*PTGRN.length)] : DIRT[Math.floor(r()*DIRT.length)]);
+            ctx.fillRect(x,y,4,4);
+        }
+        ctx.fillStyle = "#3070b0";
+        for (let x = 0; x < pw; x += CELL*2) ctx.fillRect(x, 0, 3, ph);
+    }
+
+    if (type === "Pasieka") {
+        for (let y = 0; y < ph; y += 4) for (let x = 0; x < pw; x += 4) {
+            ctx.fillStyle = BGRN[Math.floor(r()*BGRN.length)];
+            ctx.fillRect(x,y,4,4);
+            if (r() < 0.18) {
+                ctx.fillStyle = FLWR[Math.floor(r()*FLWR.length)];
+                ctx.fillRect(x,y,4,4);
+            }
+        }
+        const hiveCount = Math.max(2, Math.floor(w * h / 30));
+        for (let i = 0; i < hiveCount; i++) {
+            const hx = Math.floor(r()*(pw-16)/4)*4+4;
+            const hy = Math.floor(r()*(ph-16)/4)*4+4;
+            ctx.fillStyle = "#c8a050"; ctx.fillRect(hx,hy,12,12);
+            ctx.fillStyle = "#8a6830"; ctx.fillRect(hx,hy,12,2); ctx.fillRect(hx,hy+5,12,2); ctx.fillRect(hx,hy+10,12,2);
+            ctx.fillStyle = "#3a2a10"; ctx.fillRect(hx+4,hy+6,4,4);
+        }
+    }
+
+    if (type === "Sad") {
+        // Grass base with petals
+        const cpGrass = ["#5b8731","#6b9b3a","#5a8a30","#4d7a2a"];
+        for (let y = 0; y < ph; y += 4) for (let x = 0; x < pw; x += 4) {
+            ctx.fillStyle = cpGrass[Math.floor(r()*cpGrass.length)];
+            ctx.fillRect(x,y,4,4);
+            if (r() < 0.06) {
+                ctx.fillStyle = CPINK[Math.floor(r()*CPINK.length)];
+                ctx.fillRect(x,y,4,4);
+            }
+        }
+        // Place one fixed-size tree per 5x5 block section
+        const treesX = Math.floor(w / TREE_BLOCK);
+        const treesZ = Math.floor(h / TREE_BLOCK);
+        for (let tz = 0; tz < treesZ; tz++) {
+            for (let tx = 0; tx < treesX; tx++) {
+                const cx = tx * TREE_PX + TREE_PX / 2;
+                const cy = tz * TREE_PX + TREE_PX / 2;
+                drawCherryTree(ctx, cx, cy, r);
+            }
+        }
+    }
+
+    return canvas.toDataURL();
+}
+
+// =================== OBJECT CREATION ===================
+const OBJ_DEFS = {
+    well:   { name:"Studnia",       wId:"wellW",    hId:"wellH",    dw:4,  dh:4  },
+    house:  { name:"Dom",           wId:"houseW",   hId:"houseH",   dw:10, dh:6  },
+    barn:   { name:"Stodoła",       wId:"barnW",    hId:"barnH",    dw:15, dh:10 },
+    pen:    { name:"Zagroda",       wId:"penW",     hId:"penH",     dw:10, dh:10 },
+    stable: { name:"Stajnia",       wId:"stableW",  hId:"stableH",  dw:12, dh:8  },
+    potato: { name:"Pole uprawne",  wId:"potatoW",  hId:"potatoH",  dw:8,  dh:8  },
+    apiary: { name:"Pasieka",       wId:"apiaryW",  hId:"apiaryH",  dw:10, dh:10 },
+    cherry: { name:"Sad",           wId:"cherryW",  hId:"cherryH",  dw:5,  dh:5  },
+};
+
+function addObject(type) {
+    const def = OBJ_DEFS[type];
+    let w = parseInt(document.getElementById(def.wId).value) || def.dw;
+    let h = parseInt(document.getElementById(def.hId).value) || def.dh;
+
+    // Sad: enforce multiples of 5, minimum 5
+    if (type === 'cherry') {
+        w = Math.max(5, Math.round(w / 5) * 5);
+        h = Math.max(5, Math.round(h / 5) * 5);
+        document.getElementById(def.wId).value = w;
+        document.getElementById(def.hId).value = h;
+    }
+
+    createObject(def.name, w, h, HALF*CELL, HALF*CELL);
+}
+
+function createObject(name, w, h, x, y) {
+    const obj = document.createElement("div");
+    obj.className = "object";
+    obj.style.left = x + "px";
+    obj.style.top = y + "px";
+    obj.style.width = (w*CELL) + "px";
+    obj.style.height = (h*CELL) + "px";
+    obj.style.zIndex = BASE_Z;
+
+    const tex = createObjectTexture(w, h, name);
+    obj.style.backgroundImage = `url(${tex})`;
+    obj.style.backgroundSize = "100% 100%";
+
+    const label = document.createElement("div");
+    label.className = "object-label";
+    label.innerText = name;
+    obj.appendChild(label);
+
+    obj.dataset.objName = name;
+    obj.dataset.objW = w;
+    obj.dataset.objH = h;
+
+    map.appendChild(obj);
+    makeDraggable(obj, w, h, name);
+    updateCorners(obj, w, h, name);
+
+    // Single click = select (bring corners on top)
+    obj.addEventListener("mousedown", () => selectObject(obj));
+
+    obj.addEventListener("dblclick", e => {
+        e.stopPropagation();
+        if (selectedObj === obj) selectedObj = null;
+        obj.remove();
+        updatePanel();
+    });
+}
+
+// =================== DRAGGING ===================
+function makeDraggable(obj, w, h, name) {
+    let drag = false, ox = 0, oy = 0;
+    obj.addEventListener("mousedown", e => {
+        if (e.button !== 0) return;
+        drag = true;
+        const r = obj.getBoundingClientRect();
+        ox = e.clientX - r.left; oy = e.clientY - r.top;
+        e.preventDefault();
+    });
+    document.addEventListener("mousemove", e => {
+        if (!drag) return;
+        const mr = map.getBoundingClientRect();
+        let nx = Math.round((e.clientX - mr.left - ox) / CELL) * CELL;
+        let ny = Math.round((e.clientY - mr.top  - oy) / CELL) * CELL;
+        obj.style.left = nx + "px";
+        obj.style.top = ny + "px";
+        updateCorners(obj, w, h, name);
+    });
+    document.addEventListener("mouseup", () => { if (drag) drag = false; });
+}
+
+// =================== SIMPLE CORNER LABELS ===================
+function updateCorners(obj, w, h, name) {
+    obj.querySelectorAll(".corner").forEach(c => c.remove());
+
+    const left = parseInt(obj.style.left);
+    const top  = parseInt(obj.style.top);
+    const x1 = Math.round(left/CELL) - HALF;
+    const z1 = Math.round(top /CELL) - HALF;
+    const x2 = x1 + w;
+    const z2 = z1 + h;
+
+    const corners = [
+        { txt:`(${x1}, ${z1})`, cls:"tl" },
+        { txt:`(${x2}, ${z1})`, cls:"tr" },
+        { txt:`(${x1}, ${z2})`, cls:"bl" },
+        { txt:`(${x2}, ${z2})`, cls:"br" },
+    ];
+
+    corners.forEach(cd => {
+        const el = document.createElement("div");
+        el.className = "corner " + cd.cls;
+        el.innerText = cd.txt;
+        obj.appendChild(el);
+    });
+
+    obj.dataset.info = `<b>${name}</b> — (${x1},${z1}) → (${x2},${z2})`;
+    updatePanel();
+}
+
+function updatePanel() {
+    const objects = [...document.querySelectorAll(".object")];
+    if (objects.length === 0) { coordsPanel.innerHTML = "Brak obiektów na mapie."; return; }
+    coordsPanel.innerHTML = objects.map(o => o.dataset.info).join("<hr>");
+}
+
+// Click on empty map area = deselect all
+map.addEventListener("mousedown", e => {
+    if (e.target === map || e.target.id === "grassCanvas" || e.target.classList.contains("grid-overlay")) {
+        if (selectedObj) {
+            selectedObj.style.zIndex = BASE_Z;
+            selectedObj = null;
+        }
+    }
+});
+
+// =================== INIT ===================
+drawGrassBackground();
+
+drawThumb("thumbWell", thumbWell);
+drawThumb("thumbHouse", thumbHouse);
+drawThumb("thumbBarn", thumbBarn);
+drawThumb("thumbPen", thumbPen);
+drawThumb("thumbStable", thumbStable);
+drawThumb("thumbPotato", thumbPotato);
+drawThumb("thumbApiary", thumbApiary);
+drawThumb("thumbCherry", thumbCherry);
+
+</script>
+</body>
+</html>

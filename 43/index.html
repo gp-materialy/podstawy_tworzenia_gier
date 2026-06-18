@@ -707,8 +707,8 @@ function updateCorners(obj, w, h, name) {
     const top  = parseInt(obj.style.top);
     const x1 = Math.round(left/CELL) - HALF;
     const z1 = Math.round(top /CELL) - HALF;
-    const x2 = x1 + w;
-    const z2 = z1 + h;
+    const x2 = x1 + w - 1;
+    const z2 = z1 + h - 1;
 
     const corners = [
         { txt:`(${x1}, ${z1})`, cls:"tl" },

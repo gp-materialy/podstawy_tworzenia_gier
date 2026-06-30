@@ -27,6 +27,8 @@
     --wool-yellow: #E5E533;
     --wool-green: #51A03E;
     --wool-pink: #D88198;
+    --wool-black: #1D1D21;
+    --wool-white: #E0E0E0;
   }
 
   html { scroll-behavior: smooth; }
@@ -126,6 +128,28 @@
   }
   .card-exp {
     background: var(--bg-card-exp);
+  }
+  .card-orange {
+    background: var(--orange);
+    color: #2A2A2E;
+    border-color: #FFAA55 #B35E10 #B35E10 #FFAA55;
+  }
+  .card-orange .card-label {
+    color: #5A2800;
+  }
+  .card-orange .hl {
+    color: #2A2A2E;
+    font-weight: bold;
+    background: rgba(255,255,255,.25);
+    padding: 0 4px;
+  }
+  .card-orange .hl-r {
+    color: #8B0000;
+    font-weight: bold;
+  }
+  .card-orange .hl-g {
+    color: #1B5E20;
+    font-weight: bold;
   }
 
   /* ── Buttons ── */
@@ -278,8 +302,8 @@
     width: 40px;
     height: 40px;
     margin: 0 auto 8px;
-    border: 3px solid rgba(0,0,0,.3);
-    box-shadow: inset 2px 2px 0 rgba(255,255,255,.15);
+    border: 3px solid rgba(255,255,255,.25);
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.15), 0 0 0 1px rgba(0,0,0,.4);
   }
   .rt-icon {
     font-size: 36px;
@@ -338,12 +362,19 @@
   .carousel-slide {
     min-width: 100%;
     padding: 24px;
-    background: var(--bg-card);
-    border-left: 5px solid var(--purple);
+    background: var(--orange);
+    color: #2A2A2E;
+    border-left: 5px solid #B35E10;
   }
   .carousel-slide p {
     font-size: 24px;
     line-height: 1.6;
+    color: #2A2A2E;
+  }
+  .carousel-slide strong {
+    color: #2A2A2E !important;
+    background: rgba(255,255,255,.3);
+    padding: 0 4px;
   }
   .carousel-emoji {
     font-size: 40px;
@@ -424,7 +455,7 @@
   <div class="section-number">KROK 1</div>
   <h2 class="section-title">🗺️ Losowa pozycja</h2>
 
-  <div class="card pixel-border">
+  <div class="card card-orange pixel-border">
     <div class="card-label">📖 Jak to działa?</div>
     <p>
       Bloczek <span class="hl">wybierz pozycję losową</span> działa jak rzut kostką
@@ -454,7 +485,7 @@
   <div class="section-number">KROK 2</div>
   <h2 class="section-title">🎲 Zmienna losująca</h2>
 
-  <div class="card pixel-border">
+  <div class="card card-orange pixel-border">
     <div class="card-label">📖 Jak to działa?</div>
     <p>
       Zmienna <span class="hl">los</span> to jak magiczna kostka,
@@ -495,7 +526,7 @@
   <div class="section-number">KROK 3</div>
   <h2 class="section-title">🎁 Nagrody i pułapki</h2>
 
-  <div class="card pixel-border">
+  <div class="card card-orange pixel-border">
     <div class="card-label">📖 Jak to działa?</div>
     <p>
       Każdy <span class="hl">kolorowy blok</span> na arenie ma dwa oblicza:
@@ -544,44 +575,58 @@
 
         <div class="carousel-slide">
           <div class="carousel-emoji">🎲</div>
-          <p>Komputer tak naprawdę <strong style="color:var(--orange)">nie umie być losowy</strong>!
+          <p>Komputer tak naprawdę<strong>nie umie być losowy</strong>!
           Używa specjalnych wzorów matematycznych, które wyglądają jak losowe
           — nazywamy to <strong>pseudolosowość</strong>.</p>
         </div>
 
         <div class="carousel-slide">
           <div class="carousel-emoji">🤖</div>
-          <p>Sztuczna inteligencja (AI) uczy się przez <strong style="color:var(--orange)">losowe próbowanie</strong>.
+          <p>Sztuczna inteligencja (AI) uczy się przez<strong>losowe próbowanie</strong>.
           Tak jak ty uczysz się gry metodą prób i błędów,
           tak AI losowo próbuje różne odpowiedzi i zapamiętuje te najlepsze! 🧠</p>
         </div>
 
         <div class="carousel-slide">
           <div class="carousel-emoji">🌧️</div>
-          <p>Prognoza pogody to też <strong style="color:var(--orange)">losowość</strong>!
+          <p>Prognoza pogody to też<strong>losowość</strong>!
           Naukowcy używają komputerów, żeby losowo symulować tysiące wersji pogody
           i sprawdzić, która jest najbardziej prawdopodobna. ☀️⛈️</p>
         </div>
 
         <div class="carousel-slide">
           <div class="carousel-emoji">🎮</div>
-          <p>W <strong style="color:var(--orange)">Minecrafcie</strong> każdy nowy świat
+          <p>W<strong>Minecrafcie</strong> każdy nowy świat
           jest tworzony za pomocą losowego &bdquo;ziarna&rdquo; (seed).
           To jeden numer, z którego powstaje cały świat — góry, jaskinie i oceany! 🏔️</p>
         </div>
 
         <div class="carousel-slide">
           <div class="carousel-emoji">🐒</div>
-          <p>Jest takie powiedzenie: gdyby <strong style="color:var(--orange)">małpa losowo naciskała klawisze</strong>
+          <p>Jest takie powiedzenie: gdyby<strong>małpa losowo naciskała klawisze</strong>
           wystarczająco długo, w końcu napisałaby całą książkę!
           Oczywiście trwałoby to miliardy lat 😄</p>
         </div>
 
         <div class="carousel-slide">
           <div class="carousel-emoji">🔒</div>
-          <p>Losowość chroni nasze <strong style="color:var(--orange)">hasła w internecie</strong>!
+          <p>Losowość chroni nasze <strong>hasła w internecie</strong>!
           Gdy logujesz się na stronę, komputer używa losowych liczb,
           żeby zaszyfrować dane tak, by nikt postronny ich nie odczytał. 🛡️</p>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="carousel-emoji">🦎</div>
+          <p>Zwierzęta używają <strong>losowości żeby przetrwać</strong>!
+          Zając ucieka przed lisem zygzakiem — losowo skręca w lewo albo w prawo,
+          żeby drapieżnik nie mógł zgadnąć, dokąd pobiegnie. Sprytne! 🐇💨</p>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="carousel-emoji">❄️</div>
+          <p>Każdy <strong>płatek śniegu</strong> ma losowy kształt!
+          Gdy woda zamarza w chmurze, kryształki lodu rosną w losowych kierunkach.
+          Dlatego nie ma dwóch takich samych płatków na całym świecie! 🌨️</p>
         </div>
 
       </div>
@@ -611,7 +656,9 @@ const COLORS = [
   'var(--wool-blue)',
   'var(--wool-yellow)',
   'var(--wool-green)',
-  'var(--wool-pink)'
+  'var(--wool-pink)',
+  'var(--wool-black)',
+  'var(--wool-white)'
 ];
 
 function buildArena() {
@@ -642,7 +689,7 @@ function regenerateArena() {
   /* Place 50 blocks per color */
   const floorCells = Array.from(document.querySelectorAll('.arena-cell--floor'));
   COLORS.forEach(color => {
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 10; i++) {
       const idx = rand(0, floorCells.length - 1);
       floorCells[idx].style.background = color;
     }
@@ -722,6 +769,18 @@ const BLOCK_DATA = [
     color: 'var(--wool-pink)',
     trapIcon: '☠️', trapName: 'Trucizna',
     rewardIcon: '💨', rewardName: 'Szybkość'
+  },
+  {
+    name: 'Czarny',
+    color: 'var(--wool-black)',
+    trapIcon: '🕶️', trapName: 'Ślepota',
+    rewardIcon: '👀', rewardName: 'Noktowizja'
+  },
+  {
+    name: 'Biały',
+    color: 'var(--wool-white)',
+    trapIcon: '🎈', trapName: 'Lewitacja',
+    rewardIcon: '🛡️', rewardName: 'Odporność'
   }
 ];
 

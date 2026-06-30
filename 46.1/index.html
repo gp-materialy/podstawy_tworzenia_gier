@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wyzwania Steve'a — Lekcja 46</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #6F499D;
+    --accent-light: #D4CFE5;
+    --accent-mid: #9786BA;
+    --accent-glow: #6F499D22;
+    --purple: #6F499D;
+    --purple-light: #D4CFE5;
+    --text: #2D2D2D;
+    --text-muted: #555;
+    --bg: #FAFAFA;
+    --card-bg: #FFFFFF;
+    --border: #E0E0E0;
+    --success: #4CAF50;
+  }
+
+  [data-theme="budowniczy"] {
+    --accent: #E8760B;
+    --accent-light: #FDE8D0;
+    --accent-mid: #F0A860;
+    --accent-glow: #E8760B18;
+  }
+  [data-theme="pogromca"] {
+    --accent: #D32F2F;
+    --accent-light: #FCDEDE;
+    --accent-mid: #EF7070;
+    --accent-glow: #D32F2F18;
+  }
+  [data-theme="farmer"] {
+    --accent: #2E8B3A;
+    --accent-light: #D6F0DA;
+    --accent-mid: #6DC87A;
+    --accent-glow: #2E8B3A18;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  /* ---- HEADER ---- */
+  .header { text-align: center; margin-bottom: 32px; }
+
+  .header-brand {
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--purple);
+    margin-bottom: 8px;
+  }
+
+  .header h1 { font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); transition: color 0.3s; }
+
+  .header-sub { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+
+  /* ---- JOB SELECTOR ---- */
+  .job-selector {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+
+  .job-selector-label { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+
+  .job-options { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .job-btn {
+    flex: 1; min-width: 140px;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+
+  .job-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+  .job-emoji { font-size: 28px; line-height: 1; display: block; }
+
+  .job-btn[data-job="budowniczy"]:hover,
+  .job-btn[data-job="budowniczy"].active { border-color: #E8760B; background: #E8760B; color: #fff; }
+
+  .job-btn[data-job="pogromca"]:hover,
+  .job-btn[data-job="pogromca"].active { border-color: #D32F2F; background: #D32F2F; color: #fff; }
+
+  .job-btn[data-job="farmer"]:hover,
+  .job-btn[data-job="farmer"].active { border-color: #2E8B3A; background: #2E8B3A; color: #fff; }
+
+  /* ---- PROGRESS ---- */
+  .progress-section {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    transition: border-color 0.3s;
+  }
+
+  .progress-header {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;
+  }
+
+  .progress-label { font-size: 14px; font-weight: 700; color: var(--text); }
+  .progress-count { font-size: 14px; font-weight: 700; color: var(--accent); transition: color 0.3s; }
+
+  .progress-bar {
+    width: 100%; height: 12px;
+    background: var(--accent-light);
+    border-radius: 6px; overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-mid));
+    border-radius: 6px;
+    transition: width 0.4s ease, background 0.3s;
+  }
+
+  .progress-bar.complete .progress-fill {
+    background: linear-gradient(90deg, var(--success), #66BB6A);
+  }
+
+  /* ---- SECTION LABEL ---- */
+  .section-label {
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--accent); margin-bottom: 12px; padding-left: 4px;
+    transition: color 0.3s;
+  }
+
+  .section-label.bonus-label { color: var(--purple); margin-top: 8px; }
+
+  .section-divider { border: none; border-top: 2px dashed var(--purple-light); margin: 28px 0 20px; }
+
+  /* ---- CHALLENGE CARDS ---- */
+  .challenge-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .challenge-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: all 0.25s ease;
+  }
+
+  .challenge-card:hover { border-color: var(--accent-mid); }
+
+  .challenge-card.done {
+    border-color: var(--success);
+    background: #F5FDF5;
+  }
+
+  .challenge-card.bonus { border-left: 4px solid var(--purple); }
+  .challenge-card.bonus.done { border-color: var(--success); border-left-color: var(--success); background: #F5FDF5; }
+
+  .challenge-top { display: flex; align-items: flex-start; gap: 14px; }
+
+  .challenge-checkbox {
+    flex-shrink: 0; width: 26px; height: 26px;
+    border: 2px solid #CCC; border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease; margin-top: 1px; background: #fff;
+  }
+
+  .challenge-checkbox:hover { border-color: var(--accent); }
+
+  .challenge-card.done .challenge-checkbox { background: var(--success); border-color: var(--success); }
+
+  .challenge-checkbox svg {
+    width: 14px; height: 14px; opacity: 0; transition: opacity 0.2s ease;
+  }
+
+  .challenge-card.done .challenge-checkbox svg { opacity: 1; }
+
+  .challenge-content { flex: 1; min-width: 0; }
+
+  .challenge-num {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 500;
+    color: #fff; background: var(--accent);
+    border-radius: 4px; padding: 1px 7px;
+    margin-right: 6px; vertical-align: middle;
+    transition: background 0.3s;
+  }
+
+  .challenge-card.bonus .challenge-num { background: var(--purple); }
+
+  .challenge-title {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    display: inline; vertical-align: middle;
+  }
+
+  .challenge-card.done .challenge-title { text-decoration: line-through; opacity: 0.55; }
+
+  .challenge-desc {
+    font-size: 14.5px;
+    color: var(--text);
+    margin-top: 8px;
+    line-height: 1.6;
+    font-weight: 600;
+  }
+
+  .challenge-desc code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--accent-light);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .challenge-card.done .challenge-desc { opacity: 0.45; }
+
+  .param-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: 4px; padding: 2px 7px; margin-top: 6px;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .challenge-card.bonus .param-tag { background: var(--purple-light); color: var(--purple); }
+
+  /* ---- HINTS (always open) ---- */
+  .hint-content {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--accent-glow);
+    border-left: 3px solid var(--accent-mid);
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.55;
+    font-weight: 600;
+    transition: background 0.3s, border-color 0.3s;
+    display: none;
+  }
+
+  .hint-content.visible { display: block; }
+
+  .hint-job-label {
+    font-weight: 800; color: var(--accent);
+    display: block; margin-bottom: 2px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+    transition: color 0.3s;
+  }
+
+  .hint-job-item { display: none; }
+  .hint-job-item.active-hint { display: block; }
+
+  /* ---- FOOTER ---- */
+  .footer {
+    text-align: center; margin-top: 36px;
+    padding-top: 20px; border-top: 2px solid var(--border);
+  }
+
+  .footer-brand { font-size: 14px; font-weight: 800; color: var(--purple); }
+  .footer-course { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ---- NO JOB REMINDER ---- */
+  .no-job-msg {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #FFF3E0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #E65100;
+    text-align: center;
+  }
+
+  .no-job-msg.show { display: block; }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 500px) {
+    .header h1 { font-size: 22px; }
+    .job-btn { min-width: 100px; font-size: 12px; padding: 10px 8px; }
+    .challenge-card { padding: 14px 16px; }
+    .challenge-desc { font-size: 13.5px; }
+  }
+
+  @media print {
+    body { background: #fff; padding: 12px; }
+    .job-selector { display: none; }
+    .challenge-card { break-inside: avoid; border: 1px solid #ccc; }
+    .progress-section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-brand">Giganci Programowania</div>
+    <h1>Wyzwania <span>Steve'a</span></h1>
+    <div class="header-sub">Lekcja 46 — Funkcje Steve'a | Minecraft Education</div>
+  </div>
+
+  <!-- JOB SELECTOR -->
+  <div class="job-selector" id="jobSelector">
+    <div class="job-selector-label">Wybierz zawód Steve'a:</div>
+    <div class="job-options">
+
+      <button class="job-btn" data-job="budowniczy" onclick="selectJob('budowniczy')">
+        <span class="job-emoji">⛏️</span>
+        Budowniczy
+      </button>
+
+      <button class="job-btn" data-job="pogromca" onclick="selectJob('pogromca')">
+        <span class="job-emoji">⚔️</span>
+        Pogromca potworów
+      </button>
+
+      <button class="job-btn" data-job="farmer" onclick="selectJob('farmer')">
+        <span class="job-emoji">🌾</span>
+        Farmer
+      </button>
+
+    </div>
+    <div class="no-job-msg" id="noJobMsg">Wybierz zawód, aby zobaczyć podpowiedzi!</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Postęp</span>
+      <span class="progress-count" id="progressCount">0 / 6</span>
+    </div>
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- MAIN CHALLENGES -->
+  <div class="section-label">Wyzwania główne</div>
+
+  <div class="challenge-list" id="challengeList">
+
+    <!-- 1 -->
+    <div class="challenge-card" data-index="0">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(0)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">01</span>
+          <span class="challenge-title">Ekwipunek dla Steve'a</span>
+          <div class="challenge-desc">Zmodyfikuj funkcję <code>daj</code> — przekaż graczowi przedmioty dopasowane do zawodu.</div>
+          <span class="param-tag">parametr: brak</span>
+          <div class="hint-content">
+            <div class="hint-job-item" data-hint="budowniczy">
+              <span class="hint-job-label">Budowniczy</span>
+              Daj graczowi kilof, drewno i kamień — to podstawa każdej budowy.
+            </div>
+            <div class="hint-job-item" data-hint="pogromca">
+              <span class="hint-job-label">Pogromca potworów</span>
+              Daj graczowi miecz, zbroję i tarczę — przygotuj go do walki.
+            </div>
+            <div class="hint-job-item" data-hint="farmer">
+              <span class="hint-job-label">Farmer</span>
+              Daj graczowi motykę, nasiona i wiadro z wodą.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="challenge-card" data-index="1">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(1)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">02</span>
+          <span class="challenge-title">Wieża z bloków</span>
+          <div class="challenge-desc">Zmodyfikuj funkcję <code>buduj</code> — dopasuj budowlę do zawodu Steve'a.</div>
+          <span class="param-tag">parametr: liczba (num)</span>
+          <div class="hint-content">
+            <div class="hint-job-item" data-hint="budowniczy">
+              <span class="hint-job-label">Budowniczy</span>
+              Rusztowanie z bambusa — wysoka konstrukcja pomocna przy budowie.
+            </div>
+            <div class="hint-job-item" data-hint="pogromca">
+              <span class="hint-job-label">Pogromca potworów</span>
+              Latarnia rozświetlająca noc — postaw wieżę ze świecących bloków.
+            </div>
+            <div class="hint-job-item" data-hint="farmer">
+              <span class="hint-job-label">Farmer</span>
+              Zagroda z płotków — przytrzymaj zwierzęta w jednym miejscu.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="challenge-card" data-index="2">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(2)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">03</span>
+          <span class="challenge-title">Powitanie gracza</span>
+          <div class="challenge-desc">Zmodyfikuj funkcję <code>przemowa</code> — przywitaj postać i przekaż jej zadania.</div>
+          <span class="param-tag">parametr: tekst</span>
+          <div class="hint-content">
+            <div class="hint-job-item" data-hint="budowniczy">
+              <span class="hint-job-label">Budowniczy</span>
+              Przywitaj postać i przekaż zadanie: budowa domku startowego.
+            </div>
+            <div class="hint-job-item" data-hint="pogromca">
+              <span class="hint-job-label">Pogromca potworów</span>
+              Przywitaj postać i przekaż zadanie: przygotowanie do obrony przed nocnymi mobami.
+            </div>
+            <div class="hint-job-item" data-hint="farmer">
+              <span class="hint-job-label">Farmer</span>
+              Przywitaj postać i przekaż zadanie: budowa farmy i opieka nad zwierzętami.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="challenge-card" data-index="3">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(3)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">04</span>
+          <span class="challenge-title">Spawnowanie mobów</span>
+          <div class="challenge-desc">Zmodyfikuj funkcję <code>spawnuj</code> — dobierz moby pasujące do zawodu.</div>
+          <span class="param-tag">parametr: tablica (lista)</span>
+          <div class="hint-content">
+            <div class="hint-job-item" data-hint="budowniczy">
+              <span class="hint-job-label">Budowniczy</span>
+              Moby pomocnicze, np. Otuszek (Allay) — pomogą zbierać materiały.
+            </div>
+            <div class="hint-job-item" data-hint="pogromca">
+              <span class="hint-job-label">Pogromca potworów</span>
+              Wybrane moby agresywne — potwory do walki na arenie.
+            </div>
+            <div class="hint-job-item" data-hint="farmer">
+              <span class="hint-job-label">Farmer</span>
+              Wybrane zwierzęta — krowy, owce, kury na farmę.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="challenge-card" data-index="4">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(4)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">05</span>
+          <span class="challenge-title">Teleportacja</span>
+          <div class="challenge-desc">Zmodyfikuj funkcję <code>teleport</code> — wybierz bezpieczne miejsce do teleportacji.</div>
+          <span class="param-tag">parametr: pozycja (position)</span>
+          <div class="hint-content">
+            <div class="hint-job-item" data-hint="budowniczy">
+              <span class="hint-job-label">Budowniczy</span>
+              Użyj bloczka "świat 0 0 0", aby teleportować się do bazy budowlanej.
+            </div>
+            <div class="hint-job-item" data-hint="pogromca">
+              <span class="hint-job-label">Pogromca potworów</span>
+              Użyj bloczka "świat 0 0 0" i teleportuj się na wysokość — bezpieczny punkt obserwacyjny.
+            </div>
+            <div class="hint-job-item" data-hint="farmer">
+              <span class="hint-job-label">Farmer</span>
+              Użyj bloczka "świat 0 0 0" i teleportuj się blisko wody — idealne miejsce na farmę.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="challenge-card" data-index="5">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(5)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">06</span>
+          <span class="challenge-title">Arena z dwoma parametrami</span>
+          <div class="challenge-desc">Zmodyfikuj funkcję <code>arena</code> — zbuduj budowlę o wymiarach 3x4, 4x3 lub 5x10.</div>
+          <span class="param-tag">parametry: liczba (dl), liczba (wys)</span>
+          <div class="hint-content">
+            <div class="hint-job-item" data-hint="budowniczy">
+              <span class="hint-job-label">Budowniczy</span>
+              Basen z wodą — użyj konstruktora i wypełnij środek wodą.
+            </div>
+            <div class="hint-job-item" data-hint="pogromca">
+              <span class="hint-job-label">Pogromca potworów</span>
+              Basen z lawą, czyli pułapka na potwory — niebezpieczna arena!
+            </div>
+            <div class="hint-job-item" data-hint="farmer">
+              <span class="hint-job-label">Farmer</span>
+              Pole uprawne — ogrodzone miejsce na uprawę roślin.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <hr class="section-divider">
+    <div class="section-label bonus-label">Zadania dodatkowe</div>
+
+    <!-- BONUS 1 -->
+    <div class="challenge-card bonus" data-index="6">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(6)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">D1</span>
+          <span class="challenge-title">Funkcja ekwipunek z listą przedmiotów</span>
+          <div class="challenge-desc">Stwórz tablicę z przedmiotami (np. diamentowy miecz, łuk, złote jabłko) i funkcję <code>ekwipunek</code>, która przekaże graczowi każdy przedmiot z listy.</div>
+          <span class="param-tag">parametr: tablica (przedmioty)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BONUS 2 -->
+    <div class="challenge-card bonus" data-index="7">
+      <div class="challenge-top">
+        <div class="challenge-checkbox" onclick="toggleChallenge(7)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="challenge-content">
+          <span class="challenge-num">D2</span>
+          <span class="challenge-title">Pełna gra — arena i walka</span>
+          <div class="challenge-desc">Połącz wszystkie funkcje w jednym wywołaniu: arena, ekwipunek, spawnuj, pogoda. Przetestuj grę walcząc z potworami. Jeśli za łatwo — dodaj więcej mobów lub zwiększ arenę.</div>
+          <span class="param-tag">łączenie wszystkich funkcji</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">Giganci Programowania</div>
+    <div class="footer-course">Kurs: Podstawy tworzenia gier | Lekcja 46 | Minecraft Education</div>
+  </div>
+
+</div>
+
+<script>
+  const MAIN_TOTAL = 6;
+  const ALL_TOTAL = 8;
+  const state = new Array(ALL_TOTAL).fill(false);
+  let currentJob = null;
+
+  function selectJob(job) {
+    currentJob = job;
+    document.body.setAttribute('data-theme', job);
+    document.querySelectorAll('.job-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.job === job);
+    });
+    document.querySelectorAll('.hint-job-item').forEach(item => {
+      item.classList.toggle('active-hint', item.dataset.hint === job);
+    });
+    document.querySelectorAll('.hint-content').forEach(el => {
+      el.classList.add('visible');
+    });
+    document.getElementById('noJobMsg').classList.remove('show');
+  }
+
+  function toggleChallenge(index) {
+    state[index] = !state[index];
+    const card = document.querySelector('.challenge-card[data-index="' + index + '"]');
+    card.classList.toggle('done', state[index]);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const mainDone = state.slice(0, MAIN_TOTAL).filter(Boolean).length;
+    const pct = Math.round((mainDone / MAIN_TOTAL) * 100);
+    document.getElementById('progressCount').textContent = mainDone + ' / ' + MAIN_TOTAL;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressBar').classList.toggle('complete', mainDone === MAIN_TOTAL);
+  }
+</script>
+
+</body>
+</html>

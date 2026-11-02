@@ -345,32 +345,50 @@
     .cell .badge { width: 15px; height: 15px; font-size: 0.5rem; top: -6px; right: -6px; }
     .def-item { font-size: 0.82rem; }
   }
+
+  /* === LANGUAGE SWITCHER === */
+  .lang-switch {
+    display: flex; justify-content: center; gap: 4px;
+    width: fit-content; margin: 0 auto 20px; padding: 4px;
+    background: var(--white); border-radius: 999px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .lang-btn {
+    font-family: 'Baloo 2', cursive; font-size: 0.95rem; font-weight: 700; letter-spacing: 1px;
+    min-width: 46px; padding: 4px 12px; border: none; border-radius: 999px;
+    background: transparent; color: #777; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-btn:hover:not(.active) { background: var(--purple-light); color: var(--purple); }
+  .lang-btn.active { background: linear-gradient(135deg, var(--purple), #8B6DB5); color: #fff; cursor: default; }
+  .lang-btn:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
 </style>
 </head>
 <body>
 
 <div class="page-wrapper">
 
+  <!-- LANGUAGE SWITCHER -->
+  <div class="lang-switch" role="group" aria-label="Język / Language / Idioma / Sprache">
+    <button type="button" class="lang-btn" data-lang="pl" lang="pl" title="Polski" aria-label="Polski">PL</button>
+    <button type="button" class="lang-btn" data-lang="en" lang="en" title="English" aria-label="English">EN</button>
+    <button type="button" class="lang-btn" data-lang="es" lang="es" title="Español" aria-label="Español">ES</button>
+    <button type="button" class="lang-btn" data-lang="de" lang="de" title="Deutsch" aria-label="Deutsch">DE</button>
+  </div>
+
   <!-- HEADER -->
   <div class="header">
-    <h1>🧩 Krzyżówka <span>Gigantów</span></h1>
-    <p>Rozwiąż wszystkie hasła i odgadnij tajemne słowo!</p>
+    <h1 id="t-h1">🧩 Krzyżówka <span>Gigantów</span></h1>
+    <p id="t-sub">Rozwiąż wszystkie hasła i odgadnij tajemne słowo!</p>
   </div>
 
   <!-- INSTRUCTION -->
-  <div class="instruction">
-    Wpisz odpowiedzi w kratki. Komórki z <strong>pomarańczową cyferką</strong> to litery tajemnego hasła — odczytaj je po kolei od 1 do 11! 🔍
-  </div>
+  <div class="instruction" id="t-instruction">Wpisz odpowiedzi w kratki. Komórki z <strong>pomarańczową cyferką</strong> to litery tajemnego hasła — odczytaj je po kolei od 1 do 11! 🔍</div>
 
   <!-- DEFINITIONS -->
   <div class="definitions">
-    <h3>📖 Definicje</h3>
-    <div class="def-item"><span class="def-num">1.</span> Informacja, którą podajemy funkcji, żeby wiedziała jak ma działać (np. liczba, tekst).</div>
-    <div class="def-item"><span class="def-num">2.</span> Uruchomienie funkcji.</div>
-    <div class="def-item"><span class="def-num">3.</span> Trzy liczby (X, Y, Z), które mówią gdzie coś jest w świecie.</div>
-    <div class="def-item"><span class="def-num">4.</span> Numer elementu w tablicy lub licznik w pętli (np. 0, 1, 2…).</div>
-    <div class="def-item"><span class="def-num">5.</span> Napis/składnia liter i znaków, np. „Witaj".</div>
-    <div class="def-item"><span class="def-num">6.</span> Przedmioty, które ma gracz (np. miecz, łuk, jedzenie).</div>
+    <h3 id="t-defsTitle">📖 Definicje</h3>
+    <div id="t-defs"></div>
   </div>
 
   <!-- CROSSWORD GRID -->
@@ -378,143 +396,389 @@
 
   <!-- KEYWORD -->
   <div class="keyword-section">
-    <h3>🔑 Tajemne hasło</h3>
+    <h3 id="t-keywordTitle">🔑 Tajemne hasło</h3>
     <div class="keyword-cells" id="keyword-cells"></div>
   </div>
 
   <!-- CHECK BUTTON -->
   <div class="btn-wrap">
-    <button class="btn-check" onclick="checkAnswers()">✨ Sprawdź!</button>
+    <button class="btn-check" id="t-check" onclick="checkAnswers()">✨ Sprawdź!</button>
   </div>
   <div class="result-msg" id="result-msg"></div>
 
 </div>
 
 <script>
-// === DATA ===
-const words = [
-  {
-    num: 1,
-    answer: 'PARAMETR',
-    highlights: { 1: 1, 3: 6 } // cellIndex → keyword position
+// === DATA (texts, answers and secret word for each language) ===
+const I18N = {
+  "pl": {
+    "title": "Krzyżówka – Giganci Programowania",
+    "h1": "🧩 Krzyżówka <span>Gigantów</span>",
+    "sub": "Rozwiąż wszystkie hasła i odgadnij tajemne słowo!",
+    "instruction": "Wpisz odpowiedzi w kratki. Komórki z <strong>pomarańczową cyferką</strong> to litery tajemnego hasła — odczytaj je po kolei od 1 do {n}! 🔍",
+    "defsTitle": "📖 Definicje",
+    "defs": [
+      "Informacja, którą podajemy funkcji, żeby wiedziała jak ma działać (np. liczba, tekst).",
+      "Uruchomienie funkcji.",
+      "Trzy liczby (X, Y, Z), które mówią gdzie coś jest w świecie.",
+      "Numer elementu w tablicy lub licznik w pętli (np. 0, 1, 2…).",
+      "Napis/składnia liter i znaków, np. „Witaj\".",
+      "Przedmioty, które ma gracz (np. miecz, łuk, jedzenie)."
+    ],
+    "keywordTitle": "🔑 Tajemne hasło",
+    "check": "✨ Sprawdź!",
+    "success": "🎉 Brawo! Wszystko poprawnie! Hasło to: {kw}!",
+    "partial": "Masz {c} z {t} liter poprawnie ({p}%). Spróbuj jeszcze raz! 💪",
+    "keyword": "POWTÓRZENIE",
+    "words": [
+      {
+        "num": 1,
+        "answer": "PARAMETR",
+        "highlights": {
+          "1": 1,
+          "3": 6
+        }
+      },
+      {
+        "num": 2,
+        "answer": "WYWOŁANIE",
+        "highlights": {
+          "4": 2,
+          "7": 9
+        }
+      },
+      {
+        "num": 3,
+        "answer": "WSPÓŁRZĘDNE",
+        "highlights": {
+          "1": 3,
+          "4": 5,
+          "7": 7
+        }
+      },
+      {
+        "num": 4,
+        "answer": "INDEKS",
+        "highlights": {
+          "1": 10
+        }
+      },
+      {
+        "num": 5,
+        "answer": "TEKST",
+        "highlights": {
+          "1": 4,
+          "2": 8
+        }
+      },
+      {
+        "num": 6,
+        "answer": "EKWIPUNEK",
+        "highlights": {
+          "1": 11
+        }
+      }
+    ]
   },
-  {
-    num: 2,
-    answer: 'WYWOŁANIE',
-    highlights: { 4: 2, 7: 9 }
+  "en": {
+    "title": "Crossword – Coding Giants",
+    "h1": "🧩 The <span>Giants'</span> Crossword",
+    "sub": "Solve all the clues and guess the secret word!",
+    "instruction": "Type the answers into the boxes. The cells with an <strong>orange number</strong> are the letters of the secret word — read them in order from 1 to {n}! 🔍",
+    "defsTitle": "📖 Definitions",
+    "defs": [
+      "Information we give to a function so it knows how to work (e.g. a number, text).",
+      "Running a function.",
+      "Three numbers (X, Y, Z) that tell where something is in the world.",
+      "The number of an element in an array, or a counter in a loop (e.g. 0, 1, 2…).",
+      "A string – a sequence of letters and characters, e.g. \"Hello\".",
+      "The items the player has (e.g. a sword, a bow, food)."
+    ],
+    "keywordTitle": "🔑 Secret word",
+    "check": "✨ Check!",
+    "success": "🎉 Well done! Everything is correct! The secret word is: {kw}!",
+    "partial": "You have {c} of {t} letters correct ({p}%). Try again! 💪",
+    "keyword": "PRACTICE",
+    "words": [
+      {
+        "num": 1,
+        "answer": "PARAMETER",
+        "highlights": {
+          "1": 1,
+          "2": 3
+        }
+      },
+      {
+        "num": 2,
+        "answer": "CALL",
+        "highlights": {
+          "1": 4
+        }
+      },
+      {
+        "num": 3,
+        "answer": "COORDINATES",
+        "highlights": {
+          "6": 6,
+          "1": 7
+        }
+      },
+      {
+        "num": 4,
+        "answer": "INDEX",
+        "highlights": {
+          "4": 8
+        }
+      },
+      {
+        "num": 5,
+        "answer": "TEXT",
+        "highlights": {
+          "4": 5
+        }
+      },
+      {
+        "num": 6,
+        "answer": "INVENTORY",
+        "highlights": {
+          "8": 2
+        }
+      }
+    ]
   },
-  {
-    num: 3,
-    answer: 'WSPÓŁRZĘDNE',
-    highlights: { 1: 3, 4: 5, 7: 7 }
+  "es": {
+    "title": "Crucigrama – Coding Giants",
+    "h1": "🧩 Crucigrama de los <span>Gigantes</span>",
+    "sub": "¡Resuelve todas las definiciones y adivina la palabra secreta!",
+    "instruction": "Escribe las respuestas en las casillas. Las casillas con un <strong>número naranja</strong> son las letras de la palabra secreta — ¡léelas en orden del 1 al {n}! 🔍",
+    "defsTitle": "📖 Definiciones",
+    "defs": [
+      "Información que le damos a una función para que sepa cómo debe funcionar (p. ej. un número, un texto).",
+      "Ejecución de una función.",
+      "Tres números (X, Y, Z) que indican dónde está algo en el mundo.",
+      "El número de un elemento en un array o un contador en un bucle (p. ej. 0, 1, 2…).",
+      "Una cadena de letras y caracteres, p. ej. «Hola».",
+      "Los objetos que tiene el jugador (p. ej. una espada, un arco, comida)."
+    ],
+    "keywordTitle": "🔑 Palabra secreta",
+    "check": "✨ ¡Comprobar!",
+    "success": "🎉 ¡Bravo! ¡Todo correcto! La palabra secreta es: {kw}!",
+    "partial": "Tienes {c} de {t} letras correctas ({p}%). ¡Inténtalo de nuevo! 💪",
+    "keyword": "REPASO",
+    "words": [
+      {
+        "num": 1,
+        "answer": "PARÁMETRO",
+        "highlights": {
+          "1": 3
+        }
+      },
+      {
+        "num": 2,
+        "answer": "LLAMADA",
+        "highlights": {
+          "3": 4
+        }
+      },
+      {
+        "num": 3,
+        "answer": "COORDENADAS",
+        "highlights": {
+          "11": 5
+        }
+      },
+      {
+        "num": 4,
+        "answer": "ÍNDICE",
+        "highlights": {
+          "6": 2
+        }
+      },
+      {
+        "num": 5,
+        "answer": "TEXTO",
+        "highlights": {
+          "5": 6
+        }
+      },
+      {
+        "num": 6,
+        "answer": "INVENTARIO",
+        "highlights": {
+          "8": 1
+        }
+      }
+    ]
   },
-  {
-    num: 4,
-    answer: 'INDEKS',
-    highlights: { 1: 10 }
-  },
-  {
-    num: 5,
-    answer: 'TEKST',
-    highlights: { 1: 4, 2: 8 }
-  },
-  {
-    num: 6,
-    answer: 'EKWIPUNEK',
-    highlights: { 1: 11 }
+  "de": {
+    "title": "Kreuzworträtsel – Coding Giants",
+    "h1": "🧩 <span>Giganten</span>-Kreuzworträtsel",
+    "sub": "Löse alle Begriffe und errate das geheime Wort!",
+    "instruction": "Trage die Antworten in die Kästchen ein. Die Kästchen mit einer <strong>orangefarbenen Zahl</strong> sind die Buchstaben des geheimen Worts — lies sie der Reihe nach von 1 bis {n}! 🔍",
+    "defsTitle": "📖 Definitionen",
+    "defs": [
+      "Eine Information, die wir einer Funktion übergeben, damit sie weiß, wie sie arbeiten soll (z. B. eine Zahl, ein Text).",
+      "Das Ausführen einer Funktion.",
+      "Drei Zahlen (X, Y, Z), die angeben, wo sich etwas in der Welt befindet.",
+      "Die Nummer eines Elements in einem Array oder ein Zähler in einer Schleife (z. B. 0, 1, 2 …).",
+      "Eine Zeichenkette aus Buchstaben und Zeichen, z. B. „Hallo“.",
+      "Die Gegenstände, die der Spieler hat (z. B. ein Schwert, ein Bogen, Essen)."
+    ],
+    "keywordTitle": "🔑 Geheimes Wort",
+    "check": "✨ Prüfen!",
+    "success": "🎉 Bravo! Alles richtig! Das Lösungswort ist: {kw}!",
+    "partial": "Du hast {c} von {t} Buchstaben richtig ({p} %). Versuch es noch einmal! 💪",
+    "keyword": "ITERATION",
+    "words": [
+      {
+        "num": 1,
+        "answer": "PARAMETER",
+        "highlights": {
+          "7": 2,
+          "6": 3
+        }
+      },
+      {
+        "num": 2,
+        "answer": "AUFRUF",
+        "highlights": {
+          "4": 4
+        }
+      },
+      {
+        "num": 3,
+        "answer": "KOORDINATEN",
+        "highlights": {
+          "6": 1,
+          "2": 8
+        }
+      },
+      {
+        "num": 4,
+        "answer": "INDEX",
+        "highlights": {
+          "1": 7,
+          "2": 9
+        }
+      },
+      {
+        "num": 5,
+        "answer": "TEXT",
+        "highlights": {
+          "4": 6
+        }
+      },
+      {
+        "num": 6,
+        "answer": "INVENTAR",
+        "highlights": {
+          "7": 5
+        }
+      }
+    ]
   }
-];
+};
 
-const KEYWORD = 'POWTÓRZENIE';
+const LANGS = ['pl', 'en', 'es', 'de'];
+let lang = 'pl';
+let words = I18N.pl.words;
+let KEYWORD = I18N.pl.keyword;
+const typed = {};   // letters typed per language, kept while switching back and forth
 
-// === BUILD CROSSWORD ===
 const crosswordEl = document.getElementById('crossword');
 const keywordEl = document.getElementById('keyword-cells');
+const fmt = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v[k]);
 
-// Build keyword cells
-for (let i = 0; i < KEYWORD.length; i++) {
-  const div = document.createElement('div');
-  div.className = 'kw-cell';
-  div.id = `kw-${i + 1}`;
-  div.innerHTML = `<span class="kw-num">${i + 1}</span><span class="kw-letter">?</span>`;
-  keywordEl.appendChild(div);
-}
+// === BUILD CROSSWORD (for the current language) ===
+function buildCrossword() {
+  crosswordEl.innerHTML = '';
+  keywordEl.innerHTML = '';
 
-// Build word rows
-words.forEach((w, wi) => {
-  const row = document.createElement('div');
-  row.className = 'word-row';
-
-  const num = document.createElement('div');
-  num.className = 'word-number';
-  num.textContent = w.num + '.';
-  row.appendChild(num);
-
-  const cellsWrap = document.createElement('div');
-  cellsWrap.className = 'cells-wrapper';
-
-  for (let ci = 0; ci < w.answer.length; ci++) {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-
-    const kwPos = w.highlights[ci + 1];
-    if (kwPos) {
-      cell.classList.add('highlight');
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.textContent = kwPos;
-      cell.appendChild(badge);
-    }
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.maxLength = 1;
-    input.dataset.word = wi;
-    input.dataset.cell = ci;
-    input.setAttribute('autocomplete', 'off');
-    input.setAttribute('autocorrect', 'off');
-    input.setAttribute('spellcheck', 'false');
-
-    // Navigation
-    input.addEventListener('input', function () {
-      this.value = this.value.toUpperCase();
-      updateKeyword();
-      if (this.value.length === 1) {
-        const next = getNextInput(wi, ci);
-        if (next) next.focus();
-      }
-    });
-
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Backspace' && this.value === '') {
-        const prev = getPrevInput(wi, ci);
-        if (prev) { prev.focus(); prev.select(); }
-      } else if (e.key === 'ArrowRight') {
-        const next = getNextInput(wi, ci);
-        if (next) next.focus();
-      } else if (e.key === 'ArrowLeft') {
-        const prev = getPrevInput(wi, ci);
-        if (prev) prev.focus();
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        const below = getInputAt(wi + 1, ci);
-        if (below) below.focus();
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        const above = getInputAt(wi - 1, ci);
-        if (above) above.focus();
-      } else if (e.key === 'Enter') {
-        checkAnswers();
-      }
-    });
-
-    cell.appendChild(input);
-    cellsWrap.appendChild(cell);
+  // Build keyword cells
+  for (let i = 0; i < KEYWORD.length; i++) {
+    const div = document.createElement('div');
+    div.className = 'kw-cell';
+    div.id = `kw-${i + 1}`;
+    div.innerHTML = `<span class="kw-num">${i + 1}</span><span class="kw-letter">?</span>`;
+    keywordEl.appendChild(div);
   }
 
-  row.appendChild(cellsWrap);
-  crosswordEl.appendChild(row);
-});
+  // Build word rows
+  words.forEach((w, wi) => {
+    const row = document.createElement('div');
+    row.className = 'word-row';
+
+    const num = document.createElement('div');
+    num.className = 'word-number';
+    num.textContent = w.num + '.';
+    row.appendChild(num);
+
+    const cellsWrap = document.createElement('div');
+    cellsWrap.className = 'cells-wrapper';
+
+    for (let ci = 0; ci < w.answer.length; ci++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+
+      const kwPos = w.highlights[ci + 1];
+      if (kwPos) {
+        cell.classList.add('highlight');
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = kwPos;
+        cell.appendChild(badge);
+      }
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 1;
+      input.dataset.word = wi;
+      input.dataset.cell = ci;
+      input.setAttribute('autocomplete', 'off');
+      input.setAttribute('autocorrect', 'off');
+      input.setAttribute('spellcheck', 'false');
+
+      // Navigation
+      input.addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+        updateKeyword();
+        if (this.value.length === 1) {
+          const next = getNextInput(wi, ci);
+          if (next) next.focus();
+        }
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && this.value === '') {
+          const prev = getPrevInput(wi, ci);
+          if (prev) { prev.focus(); prev.select(); }
+        } else if (e.key === 'ArrowRight') {
+          const next = getNextInput(wi, ci);
+          if (next) next.focus();
+        } else if (e.key === 'ArrowLeft') {
+          const prev = getPrevInput(wi, ci);
+          if (prev) prev.focus();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const below = getInputAt(wi + 1, ci);
+          if (below) below.focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const above = getInputAt(wi - 1, ci);
+          if (above) above.focus();
+        } else if (e.key === 'Enter') {
+          checkAnswers();
+        }
+      });
+
+      cell.appendChild(input);
+      cellsWrap.appendChild(cell);
+    }
+
+    row.appendChild(cellsWrap);
+    crosswordEl.appendChild(row);
+  });
+}
 
 // === HELPERS ===
 function getInput(wordIdx, cellIdx) {
@@ -585,15 +849,16 @@ function checkAnswers() {
   });
 
   const msg = document.getElementById('result-msg');
+  const t = I18N[lang];
 
   if (totalCorrect === totalCells) {
     msg.className = 'result-msg success';
-    msg.textContent = '🎉 Brawo! Wszystko poprawnie! Hasło to: POWTÓRZENIE!';
+    msg.textContent = fmt(t.success, { kw: KEYWORD });
     launchConfetti();
   } else {
     const pct = Math.round((totalCorrect / totalCells) * 100);
     msg.className = 'result-msg partial';
-    msg.textContent = `Masz ${totalCorrect} z ${totalCells} liter poprawnie (${pct}%). Spróbuj jeszcze raz! 💪`;
+    msg.textContent = fmt(t.partial, { c: totalCorrect, t: totalCells, p: pct });
   }
 }
 
@@ -620,6 +885,50 @@ function launchConfetti() {
     }, i * 15);
   }
 }
+
+// === LANGUAGE SWITCHING ===
+function saveTyped() {
+  typed[lang] = Array.from(crosswordEl.querySelectorAll('input')).map(i => i.value);
+}
+
+function setLang(l, persist = true) {
+  if (!LANGS.includes(l)) l = 'pl';
+  if (crosswordEl.children.length) saveTyped();
+  lang = l;
+  const t = I18N[l];
+  words = t.words;
+  KEYWORD = t.keyword;
+
+  document.documentElement.lang = l;
+  document.title = t.title;
+  document.getElementById('t-h1').innerHTML = t.h1;
+  document.getElementById('t-sub').textContent = t.sub;
+  document.getElementById('t-instruction').innerHTML = fmt(t.instruction, { n: KEYWORD.length });
+  document.getElementById('t-defsTitle').textContent = t.defsTitle;
+  document.getElementById('t-defs').innerHTML = t.defs.map((d, i) =>
+    `<div class="def-item"><span class="def-num">${i + 1}.</span> ${d}</div>`).join('');
+  document.getElementById('t-keywordTitle').textContent = t.keywordTitle;
+  document.getElementById('t-check').textContent = t.check;
+  const msg = document.getElementById('result-msg');
+  msg.className = 'result-msg'; msg.textContent = '';
+
+  buildCrossword();
+  (typed[l] || []).forEach((v, i) => { const inp = crosswordEl.querySelectorAll('input')[i]; if (inp) inp.value = v; });
+  updateKeyword();
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    const on = btn.dataset.lang === l;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if (persist) { try { localStorage.setItem('crosswordLang', l); } catch (e) { /* storage unavailable */ } }
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
+
+let startLang = 'pl';
+try { const saved = localStorage.getItem('crosswordLang'); if (LANGS.includes(saved)) startLang = saved; } catch (e) { /* storage unavailable */ }
+setLang(startLang, false);
 </script>
 
 </body>

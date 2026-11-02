@@ -314,47 +314,72 @@
     .challenge-card { break-inside: avoid; border: 1px solid #ccc; }
     .progress-section { break-inside: avoid; }
   }
+
+  /* ---- LANGUAGE SWITCHER ---- */
+  .lang-switch {
+    display: flex; justify-content: center; gap: 4px;
+    width: fit-content; margin: 0 auto 20px; padding: 4px;
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: 999px;
+  }
+  .lang-btn {
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 1px;
+    min-width: 46px; padding: 6px 12px; border: none; border-radius: 999px;
+    background: transparent; color: var(--text-muted); cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-btn:hover:not(.active) { background: var(--purple-light); color: var(--purple); }
+  .lang-btn.active { background: var(--purple); color: #fff; cursor: default; }
+  .lang-btn:focus-visible { outline: 3px solid var(--accent-mid); outline-offset: 2px; }
+  @media print { .lang-switch { display: none; } }
 </style>
 </head>
 <body>
 
 <div class="container">
 
+  <!-- LANGUAGE SWITCHER -->
+  <div class="lang-switch" role="group" aria-label="Język / Language / Idioma / Sprache">
+    <button type="button" class="lang-btn" data-lang="pl" lang="pl" title="Polski" aria-label="Polski">PL</button>
+    <button type="button" class="lang-btn" data-lang="en" lang="en" title="English" aria-label="English">EN</button>
+    <button type="button" class="lang-btn" data-lang="es" lang="es" title="Español" aria-label="Español">ES</button>
+    <button type="button" class="lang-btn" data-lang="de" lang="de" title="Deutsch" aria-label="Deutsch">DE</button>
+  </div>
+
   <!-- HEADER -->
   <div class="header">
-    <div class="header-brand">Giganci Programowania</div>
-    <h1>Wyzwania <span>Steve'a</span></h1>
-    <div class="header-sub">Lekcja 46 — Funkcje Steve'a | Minecraft Education</div>
+    <div class="header-brand" data-i18n="brand">Giganci Programowania</div>
+    <h1 data-i18n-html="h1">Wyzwania <span>Steve'a</span></h1>
+    <div class="header-sub" data-i18n="sub">Lekcja 46 — Funkcje Steve'a | Minecraft Education</div>
   </div>
 
   <!-- JOB SELECTOR -->
   <div class="job-selector" id="jobSelector">
-    <div class="job-selector-label">Wybierz zawód Steve'a:</div>
+    <div class="job-selector-label" data-i18n="jobLabel">Wybierz zawód Steve'a:</div>
     <div class="job-options">
 
       <button class="job-btn" data-job="budowniczy" onclick="selectJob('budowniczy')">
         <span class="job-emoji">⛏️</span>
-        Budowniczy
+        <span data-i18n-job="budowniczy">Budowniczy</span>
       </button>
 
       <button class="job-btn" data-job="pogromca" onclick="selectJob('pogromca')">
         <span class="job-emoji">⚔️</span>
-        Pogromca potworów
+        <span data-i18n-job="pogromca">Pogromca potworów</span>
       </button>
 
       <button class="job-btn" data-job="farmer" onclick="selectJob('farmer')">
         <span class="job-emoji">🌾</span>
-        Farmer
+        <span data-i18n-job="farmer">Farmer</span>
       </button>
 
     </div>
-    <div class="no-job-msg" id="noJobMsg">Wybierz zawód, aby zobaczyć podpowiedzi!</div>
+    <div class="no-job-msg" id="noJobMsg" data-i18n="noJob">Wybierz zawód, aby zobaczyć podpowiedzi!</div>
   </div>
 
   <!-- PROGRESS -->
   <div class="progress-section">
     <div class="progress-header">
-      <span class="progress-label">Postęp</span>
+      <span class="progress-label" data-i18n="progress">Postęp</span>
       <span class="progress-count" id="progressCount">0 / 6</span>
     </div>
     <div class="progress-bar" id="progressBar">
@@ -363,233 +388,443 @@
   </div>
 
   <!-- MAIN CHALLENGES -->
-  <div class="section-label">Wyzwania główne</div>
+  <div class="section-label" data-i18n="mainLabel">Wyzwania główne</div>
 
-  <div class="challenge-list" id="challengeList">
-
-    <!-- 1 -->
-    <div class="challenge-card" data-index="0">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(0)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">01</span>
-          <span class="challenge-title">Ekwipunek dla Steve'a</span>
-          <div class="challenge-desc">Zmodyfikuj funkcję <code>daj</code> — przekaż graczowi przedmioty dopasowane do zawodu.</div>
-          <span class="param-tag">parametr: brak</span>
-          <div class="hint-content">
-            <div class="hint-job-item" data-hint="budowniczy">
-              <span class="hint-job-label">Budowniczy</span>
-              Daj graczowi kilof, drewno i kamień — to podstawa każdej budowy.
-            </div>
-            <div class="hint-job-item" data-hint="pogromca">
-              <span class="hint-job-label">Pogromca potworów</span>
-              Daj graczowi miecz, zbroję i tarczę — przygotuj go do walki.
-            </div>
-            <div class="hint-job-item" data-hint="farmer">
-              <span class="hint-job-label">Farmer</span>
-              Daj graczowi motykę, nasiona i wiadro z wodą.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2 -->
-    <div class="challenge-card" data-index="1">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(1)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">02</span>
-          <span class="challenge-title">Wieża z bloków</span>
-          <div class="challenge-desc">Zmodyfikuj funkcję <code>buduj</code> — dopasuj budowlę do zawodu Steve'a.</div>
-          <span class="param-tag">parametr: liczba (num)</span>
-          <div class="hint-content">
-            <div class="hint-job-item" data-hint="budowniczy">
-              <span class="hint-job-label">Budowniczy</span>
-              Rusztowanie z bambusa — wysoka konstrukcja pomocna przy budowie.
-            </div>
-            <div class="hint-job-item" data-hint="pogromca">
-              <span class="hint-job-label">Pogromca potworów</span>
-              Latarnia rozświetlająca noc — postaw wieżę ze świecących bloków.
-            </div>
-            <div class="hint-job-item" data-hint="farmer">
-              <span class="hint-job-label">Farmer</span>
-              Zagroda z płotków — przytrzymaj zwierzęta w jednym miejscu.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3 -->
-    <div class="challenge-card" data-index="2">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(2)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">03</span>
-          <span class="challenge-title">Powitanie gracza</span>
-          <div class="challenge-desc">Zmodyfikuj funkcję <code>przemowa</code> — przywitaj postać i przekaż jej zadania.</div>
-          <span class="param-tag">parametr: tekst</span>
-          <div class="hint-content">
-            <div class="hint-job-item" data-hint="budowniczy">
-              <span class="hint-job-label">Budowniczy</span>
-              Przywitaj postać i przekaż zadanie: budowa domku startowego.
-            </div>
-            <div class="hint-job-item" data-hint="pogromca">
-              <span class="hint-job-label">Pogromca potworów</span>
-              Przywitaj postać i przekaż zadanie: przygotowanie do obrony przed nocnymi mobami.
-            </div>
-            <div class="hint-job-item" data-hint="farmer">
-              <span class="hint-job-label">Farmer</span>
-              Przywitaj postać i przekaż zadanie: budowa farmy i opieka nad zwierzętami.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4 -->
-    <div class="challenge-card" data-index="3">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(3)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">04</span>
-          <span class="challenge-title">Spawnowanie mobów</span>
-          <div class="challenge-desc">Zmodyfikuj funkcję <code>spawnuj</code> — dobierz moby pasujące do zawodu.</div>
-          <span class="param-tag">parametr: tablica (lista)</span>
-          <div class="hint-content">
-            <div class="hint-job-item" data-hint="budowniczy">
-              <span class="hint-job-label">Budowniczy</span>
-              Moby pomocnicze, np. Otuszek (Allay) — pomogą zbierać materiały.
-            </div>
-            <div class="hint-job-item" data-hint="pogromca">
-              <span class="hint-job-label">Pogromca potworów</span>
-              Wybrane moby agresywne — potwory do walki na arenie.
-            </div>
-            <div class="hint-job-item" data-hint="farmer">
-              <span class="hint-job-label">Farmer</span>
-              Wybrane zwierzęta — krowy, owce, kury na farmę.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5 -->
-    <div class="challenge-card" data-index="4">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(4)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">05</span>
-          <span class="challenge-title">Teleportacja</span>
-          <div class="challenge-desc">Zmodyfikuj funkcję <code>teleport</code> — wybierz bezpieczne miejsce do teleportacji.</div>
-          <span class="param-tag">parametr: pozycja (position)</span>
-          <div class="hint-content">
-            <div class="hint-job-item" data-hint="budowniczy">
-              <span class="hint-job-label">Budowniczy</span>
-              Użyj bloczka "świat 0 0 0", aby teleportować się do bazy budowlanej.
-            </div>
-            <div class="hint-job-item" data-hint="pogromca">
-              <span class="hint-job-label">Pogromca potworów</span>
-              Użyj bloczka "świat 0 0 0" i teleportuj się na wysokość — bezpieczny punkt obserwacyjny.
-            </div>
-            <div class="hint-job-item" data-hint="farmer">
-              <span class="hint-job-label">Farmer</span>
-              Użyj bloczka "świat 0 0 0" i teleportuj się blisko wody — idealne miejsce na farmę.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6 -->
-    <div class="challenge-card" data-index="5">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(5)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">06</span>
-          <span class="challenge-title">Arena z dwoma parametrami</span>
-          <div class="challenge-desc">Zmodyfikuj funkcję <code>arena</code> — zbuduj budowlę o wymiarach 3x4, 4x3 lub 5x10.</div>
-          <span class="param-tag">parametry: liczba (dl), liczba (wys)</span>
-          <div class="hint-content">
-            <div class="hint-job-item" data-hint="budowniczy">
-              <span class="hint-job-label">Budowniczy</span>
-              Basen z wodą — użyj konstruktora i wypełnij środek wodą.
-            </div>
-            <div class="hint-job-item" data-hint="pogromca">
-              <span class="hint-job-label">Pogromca potworów</span>
-              Basen z lawą, czyli pułapka na potwory — niebezpieczna arena!
-            </div>
-            <div class="hint-job-item" data-hint="farmer">
-              <span class="hint-job-label">Farmer</span>
-              Pole uprawne — ogrodzone miejsce na uprawę roślin.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DIVIDER -->
-    <hr class="section-divider">
-    <div class="section-label bonus-label">Zadania dodatkowe</div>
-
-    <!-- BONUS 1 -->
-    <div class="challenge-card bonus" data-index="6">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(6)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">D1</span>
-          <span class="challenge-title">Funkcja ekwipunek z listą przedmiotów</span>
-          <div class="challenge-desc">Stwórz tablicę z przedmiotami (np. diamentowy miecz, łuk, złote jabłko) i funkcję <code>ekwipunek</code>, która przekaże graczowi każdy przedmiot z listy.</div>
-          <span class="param-tag">parametr: tablica (przedmioty)</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- BONUS 2 -->
-    <div class="challenge-card bonus" data-index="7">
-      <div class="challenge-top">
-        <div class="challenge-checkbox" onclick="toggleChallenge(7)">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="challenge-content">
-          <span class="challenge-num">D2</span>
-          <span class="challenge-title">Pełna gra — arena i walka</span>
-          <div class="challenge-desc">Połącz wszystkie funkcje w jednym wywołaniu: arena, ekwipunek, spawnuj, pogoda. Przetestuj grę walcząc z potworami. Jeśli za łatwo — dodaj więcej mobów lub zwiększ arenę.</div>
-          <span class="param-tag">łączenie wszystkich funkcji</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  <!-- challenge cards are rendered from the I18N data below (same markup as before) -->
+  <div class="challenge-list" id="challengeList"></div>
 
   <!-- FOOTER -->
   <div class="footer">
-    <div class="footer-brand">Giganci Programowania</div>
-    <div class="footer-course">Kurs: Podstawy tworzenia gier | Lekcja 46 | Minecraft Education</div>
+    <div class="footer-brand" data-i18n="brand">Giganci Programowania</div>
+    <div class="footer-course" data-i18n="footerCourse">Kurs: Podstawy tworzenia gier | Lekcja 46 | Minecraft Education</div>
   </div>
 
 </div>
 
 <script>
+  const I18N = {
+  "pl": {
+    "title": "Wyzwania Steve'a — Lekcja 46",
+    "brand": "Giganci Programowania",
+    "h1": "Wyzwania <span>Steve'a</span>",
+    "sub": "Lekcja 46 — Funkcje Steve'a | Minecraft Education",
+    "jobLabel": "Wybierz zawód Steve'a:",
+    "jobs": {
+      "budowniczy": "Budowniczy",
+      "pogromca": "Pogromca potworów",
+      "farmer": "Farmer"
+    },
+    "noJob": "Wybierz zawód, aby zobaczyć podpowiedzi!",
+    "progress": "Postęp",
+    "mainLabel": "Wyzwania główne",
+    "bonusLabel": "Zadania dodatkowe",
+    "footerCourse": "Kurs: Podstawy tworzenia gier | Lekcja 46 | Minecraft Education",
+    "challenges": [
+      {
+        "title": "Ekwipunek dla Steve'a",
+        "desc": "Zmodyfikuj funkcję <code>daj</code> — przekaż graczowi przedmioty dopasowane do zawodu.",
+        "param": "parametr: brak",
+        "hints": {
+          "budowniczy": "Daj graczowi kilof, drewno i kamień — to podstawa każdej budowy.",
+          "pogromca": "Daj graczowi miecz, zbroję i tarczę — przygotuj go do walki.",
+          "farmer": "Daj graczowi motykę, nasiona i wiadro z wodą."
+        }
+      },
+      {
+        "title": "Wieża z bloków",
+        "desc": "Zmodyfikuj funkcję <code>buduj</code> — dopasuj budowlę do zawodu Steve'a.",
+        "param": "parametr: liczba (num)",
+        "hints": {
+          "budowniczy": "Rusztowanie z bambusa — wysoka konstrukcja pomocna przy budowie.",
+          "pogromca": "Latarnia rozświetlająca noc — postaw wieżę ze świecących bloków.",
+          "farmer": "Zagroda z płotków — przytrzymaj zwierzęta w jednym miejscu."
+        }
+      },
+      {
+        "title": "Powitanie gracza",
+        "desc": "Zmodyfikuj funkcję <code>przemowa</code> — przywitaj postać i przekaż jej zadania.",
+        "param": "parametr: tekst",
+        "hints": {
+          "budowniczy": "Przywitaj postać i przekaż zadanie: budowa domku startowego.",
+          "pogromca": "Przywitaj postać i przekaż zadanie: przygotowanie do obrony przed nocnymi mobami.",
+          "farmer": "Przywitaj postać i przekaż zadanie: budowa farmy i opieka nad zwierzętami."
+        }
+      },
+      {
+        "title": "Spawnowanie mobów",
+        "desc": "Zmodyfikuj funkcję <code>spawnuj</code> — dobierz moby pasujące do zawodu.",
+        "param": "parametr: tablica (lista)",
+        "hints": {
+          "budowniczy": "Moby pomocnicze, np. Otuszek (Allay) — pomogą zbierać materiały.",
+          "pogromca": "Wybrane moby agresywne — potwory do walki na arenie.",
+          "farmer": "Wybrane zwierzęta — krowy, owce, kury na farmę."
+        }
+      },
+      {
+        "title": "Teleportacja",
+        "desc": "Zmodyfikuj funkcję <code>teleport</code> — wybierz bezpieczne miejsce do teleportacji.",
+        "param": "parametr: pozycja (position)",
+        "hints": {
+          "budowniczy": "Użyj bloczka \"świat 0 0 0\", aby teleportować się do bazy budowlanej.",
+          "pogromca": "Użyj bloczka \"świat 0 0 0\" i teleportuj się na wysokość — bezpieczny punkt obserwacyjny.",
+          "farmer": "Użyj bloczka \"świat 0 0 0\" i teleportuj się blisko wody — idealne miejsce na farmę."
+        }
+      },
+      {
+        "title": "Arena z dwoma parametrami",
+        "desc": "Zmodyfikuj funkcję <code>arena</code> — zbuduj budowlę o wymiarach 3x4, 4x3 lub 5x10.",
+        "param": "parametry: liczba (dl), liczba (wys)",
+        "hints": {
+          "budowniczy": "Basen z wodą — użyj konstruktora i wypełnij środek wodą.",
+          "pogromca": "Basen z lawą, czyli pułapka na potwory — niebezpieczna arena!",
+          "farmer": "Pole uprawne — ogrodzone miejsce na uprawę roślin."
+        }
+      }
+    ],
+    "bonus": [
+      {
+        "title": "Funkcja ekwipunek z listą przedmiotów",
+        "desc": "Stwórz tablicę z przedmiotami (np. diamentowy miecz, łuk, złote jabłko) i funkcję <code>ekwipunek</code>, która przekaże graczowi każdy przedmiot z listy.",
+        "param": "parametr: tablica (przedmioty)"
+      },
+      {
+        "title": "Pełna gra — arena i walka",
+        "desc": "Połącz wszystkie funkcje w jednym wywołaniu: arena, ekwipunek, spawnuj, pogoda. Przetestuj grę walcząc z potworami. Jeśli za łatwo — dodaj więcej mobów lub zwiększ arenę.",
+        "param": "łączenie wszystkich funkcji"
+      }
+    ]
+  },
+  "en": {
+    "title": "Steve's Challenges — Lesson 46",
+    "brand": "Coding Giants",
+    "h1": "<span>Steve's</span> Challenges",
+    "sub": "Lesson 46 — Steve's Functions | Minecraft Education",
+    "jobLabel": "Choose Steve's job:",
+    "jobs": {
+      "budowniczy": "Master Builder",
+      "pogromca": "Monster Slayer",
+      "farmer": "Farmer"
+    },
+    "noJob": "Choose a job to see the hints!",
+    "progress": "Progress",
+    "mainLabel": "Main challenges",
+    "bonusLabel": "Bonus tasks",
+    "footerCourse": "Course: Game Development Basics | Lesson 46 | Minecraft Education",
+    "challenges": [
+      {
+        "title": "Equipment for Steve",
+        "desc": "Modify the <code>give</code> function — give the player items that match the job.",
+        "param": "parameter: none",
+        "hints": {
+          "budowniczy": "Give the player a pickaxe, wood and stone — the basics of every build.",
+          "pogromca": "Give the player a sword, armor and a shield — get them ready for battle.",
+          "farmer": "Give the player a hoe, seeds and a bucket of water."
+        }
+      },
+      {
+        "title": "Block tower",
+        "desc": "Modify the <code>build</code> function — match the structure to Steve's job.",
+        "param": "parameter: number (num)",
+        "hints": {
+          "budowniczy": "Bamboo scaffolding — a tall structure that helps with building.",
+          "pogromca": "A lighthouse that lights up the night — build a tower of glowing blocks.",
+          "farmer": "A fenced pen — keep the animals in one place."
+        }
+      },
+      {
+        "title": "Greeting the player",
+        "desc": "Modify the <code>speech</code> function — greet the character and give them their tasks.",
+        "param": "parameter: text",
+        "hints": {
+          "budowniczy": "Greet the character and give the task: build a starter house.",
+          "pogromca": "Greet the character and give the task: prepare to defend against night mobs.",
+          "farmer": "Greet the character and give the task: build a farm and take care of the animals."
+        }
+      },
+      {
+        "title": "Spawning mobs",
+        "desc": "Modify the <code>spawn</code> function — choose mobs that match the job.",
+        "param": "parameter: array (list)",
+        "hints": {
+          "budowniczy": "Helper mobs, e.g. the Allay — they will help collect materials.",
+          "pogromca": "Selected hostile mobs — monsters to fight in the arena.",
+          "farmer": "Selected animals — cows, sheep and chickens for the farm."
+        }
+      },
+      {
+        "title": "Teleportation",
+        "desc": "Modify the <code>teleport</code> function — choose a safe place to teleport to.",
+        "param": "parameter: position (position)",
+        "hints": {
+          "budowniczy": "Use the \"world 0 0 0\" block to teleport to the building base.",
+          "pogromca": "Use the \"world 0 0 0\" block and teleport up high — a safe lookout point.",
+          "farmer": "Use the \"world 0 0 0\" block and teleport close to water — a perfect place for a farm."
+        }
+      },
+      {
+        "title": "Arena with two parameters",
+        "desc": "Modify the <code>arena</code> function — build a structure measuring 3x4, 4x3 or 5x10.",
+        "param": "parameters: number (length), number (height)",
+        "hints": {
+          "budowniczy": "A pool of water — use the Builder and fill the middle with water.",
+          "pogromca": "A lava pool, i.e. a monster trap — a dangerous arena!",
+          "farmer": "A crop field — a fenced area for growing plants."
+        }
+      }
+    ],
+    "bonus": [
+      {
+        "title": "An inventory function with a list of items",
+        "desc": "Create an array of items (e.g. a diamond sword, a bow, a golden apple) and an <code>inventory</code> function that gives the player every item from the list.",
+        "param": "parameter: array (items)"
+      },
+      {
+        "title": "Full game — arena and combat",
+        "desc": "Combine all the functions in one call: arena, inventory, spawn, weather. Test the game by fighting monsters. If it's too easy — add more mobs or make the arena bigger.",
+        "param": "combining all functions"
+      }
+    ]
+  },
+  "es": {
+    "title": "Desafíos de Steve — Lección 46",
+    "brand": "Coding Giants",
+    "h1": "Desafíos de <span>Steve</span>",
+    "sub": "Lección 46 — Funciones de Steve | Minecraft Education",
+    "jobLabel": "Elige la profesión de Steve:",
+    "jobs": {
+      "budowniczy": "Maestro de obras",
+      "pogromca": "Cazador de monstruos",
+      "farmer": "Granjero"
+    },
+    "noJob": "¡Elige una profesión para ver las pistas!",
+    "progress": "Progreso",
+    "mainLabel": "Desafíos principales",
+    "bonusLabel": "Tareas adicionales",
+    "footerCourse": "Curso: Fundamentos de creación de videojuegos | Lección 46 | Minecraft Education",
+    "challenges": [
+      {
+        "title": "Equipo para Steve",
+        "desc": "Modifica la función <code>give</code> — dale al jugador objetos adecuados a su profesión.",
+        "param": "parámetro: ninguno",
+        "hints": {
+          "budowniczy": "Dale al jugador un pico, madera y piedra — la base de cualquier construcción.",
+          "pogromca": "Dale al jugador una espada, una armadura y un escudo — prepáralo para la batalla.",
+          "farmer": "Dale al jugador una azada, semillas y un cubo de agua."
+        }
+      },
+      {
+        "title": "Torre de bloques",
+        "desc": "Modifica la función <code>build</code> — adapta la construcción a la profesión de Steve.",
+        "param": "parámetro: número (num)",
+        "hints": {
+          "budowniczy": "Andamio de bambú — una estructura alta que ayuda al construir.",
+          "pogromca": "Un faro que ilumina la noche — levanta una torre de bloques luminosos.",
+          "farmer": "Un corral de vallas — mantén a los animales en un solo lugar."
+        }
+      },
+      {
+        "title": "Saludo al jugador",
+        "desc": "Modifica la función <code>speech</code> — saluda al personaje y dale sus tareas.",
+        "param": "parámetro: texto (text)",
+        "hints": {
+          "budowniczy": "Saluda al personaje y dale la tarea: construir una casa inicial.",
+          "pogromca": "Saluda al personaje y dale la tarea: prepararse para defenderse de los mobs nocturnos.",
+          "farmer": "Saluda al personaje y dale la tarea: construir una granja y cuidar de los animales."
+        }
+      },
+      {
+        "title": "Generar mobs",
+        "desc": "Modifica la función <code>spawn</code> — elige mobs adecuados a la profesión.",
+        "param": "parámetro: array (list)",
+        "hints": {
+          "budowniczy": "Mobs ayudantes, p. ej. el Allay — te ayudarán a recoger materiales.",
+          "pogromca": "Mobs hostiles seleccionados — monstruos para luchar en la arena.",
+          "farmer": "Animales seleccionados — vacas, ovejas y gallinas para la granja."
+        }
+      },
+      {
+        "title": "Teletransporte",
+        "desc": "Modifica la función <code>teleport</code> — elige un lugar seguro para teletransportarte.",
+        "param": "parámetro: posición (position)",
+        "hints": {
+          "budowniczy": "Usa el bloque «mundo 0 0 0» para teletransportarte a la base de construcción.",
+          "pogromca": "Usa el bloque «mundo 0 0 0» y teletranspórtate a una altura — un punto de observación seguro.",
+          "farmer": "Usa el bloque «mundo 0 0 0» y teletranspórtate cerca del agua — el lugar ideal para una granja."
+        }
+      },
+      {
+        "title": "Arena con dos parámetros",
+        "desc": "Modifica la función <code>arena</code> — construye una estructura de 3x4, 4x3 o 5x10.",
+        "param": "parámetros: número (length), número (height)",
+        "hints": {
+          "budowniczy": "Una piscina de agua — usa el constructor y llena el centro de agua.",
+          "pogromca": "Una piscina de lava, es decir, una trampa para monstruos — ¡una arena peligrosa!",
+          "farmer": "Un campo de cultivo — un lugar vallado para cultivar plantas."
+        }
+      }
+    ],
+    "bonus": [
+      {
+        "title": "Función inventory con una lista de objetos",
+        "desc": "Crea un array con objetos (p. ej. una espada de diamante, un arco, una manzana dorada) y una función <code>inventory</code> que le dé al jugador cada objeto de la lista.",
+        "param": "parámetro: array (items)"
+      },
+      {
+        "title": "Juego completo — arena y combate",
+        "desc": "Combina todas las funciones en una sola llamada: arena, inventory, spawn, weather. Prueba el juego luchando contra monstruos. Si es demasiado fácil — añade más mobs o amplía la arena.",
+        "param": "combinación de todas las funciones"
+      }
+    ]
+  },
+  "de": {
+    "title": "Steves Herausforderungen — Lektion 46",
+    "brand": "Coding Giants",
+    "h1": "<span>Steves</span> Herausforderungen",
+    "sub": "Lektion 46 — Steves Funktionen | Minecraft Education",
+    "jobLabel": "Wähle Steves Beruf:",
+    "jobs": {
+      "budowniczy": "Baumeister",
+      "pogromca": "Monsterjäger",
+      "farmer": "Bauer"
+    },
+    "noJob": "Wähle einen Beruf, um die Hinweise zu sehen!",
+    "progress": "Fortschritt",
+    "mainLabel": "Hauptherausforderungen",
+    "bonusLabel": "Zusatzaufgaben",
+    "footerCourse": "Kurs: Grundlagen der Spieleentwicklung | Lektion 46 | Minecraft Education",
+    "challenges": [
+      {
+        "title": "Ausrüstung für Steve",
+        "desc": "Ändere die Funktion <code>give</code> — gib dem Spieler Gegenstände, die zum Beruf passen.",
+        "param": "Parameter: keiner",
+        "hints": {
+          "budowniczy": "Gib dem Spieler eine Spitzhacke, Holz und Stein — die Grundlage jedes Baus.",
+          "pogromca": "Gib dem Spieler ein Schwert, eine Rüstung und einen Schild — bereite ihn auf den Kampf vor.",
+          "farmer": "Gib dem Spieler eine Hacke, Samen und einen Eimer Wasser."
+        }
+      },
+      {
+        "title": "Turm aus Blöcken",
+        "desc": "Ändere die Funktion <code>build</code> — passe das Bauwerk an Steves Beruf an.",
+        "param": "Parameter: Zahl (num)",
+        "hints": {
+          "budowniczy": "Gerüst aus Bambus — eine hohe Konstruktion, die beim Bauen hilft.",
+          "pogromca": "Ein Leuchtturm, der die Nacht erhellt — baue einen Turm aus leuchtenden Blöcken.",
+          "farmer": "Ein Gehege aus Zäunen — halte die Tiere an einem Ort."
+        }
+      },
+      {
+        "title": "Begrüßung des Spielers",
+        "desc": "Ändere die Funktion <code>speech</code> — begrüße die Figur und gib ihr ihre Aufgaben.",
+        "param": "Parameter: Text (text)",
+        "hints": {
+          "budowniczy": "Begrüße die Figur und gib ihr die Aufgabe: ein Starthaus bauen.",
+          "pogromca": "Begrüße die Figur und gib ihr die Aufgabe: sich auf die Verteidigung gegen nächtliche Mobs vorbereiten.",
+          "farmer": "Begrüße die Figur und gib ihr die Aufgabe: eine Farm bauen und sich um die Tiere kümmern."
+        }
+      },
+      {
+        "title": "Mobs spawnen",
+        "desc": "Ändere die Funktion <code>spawn</code> — wähle Mobs, die zum Beruf passen.",
+        "param": "Parameter: Array (list)",
+        "hints": {
+          "budowniczy": "Hilfsmobs, z. B. der Allay — sie helfen beim Sammeln von Materialien.",
+          "pogromca": "Ausgewählte feindliche Mobs — Monster für den Kampf in der Arena.",
+          "farmer": "Ausgewählte Tiere — Kühe, Schafe und Hühner für die Farm."
+        }
+      },
+      {
+        "title": "Teleportation",
+        "desc": "Ändere die Funktion <code>teleport</code> — wähle einen sicheren Ort für die Teleportation.",
+        "param": "Parameter: Position (position)",
+        "hints": {
+          "budowniczy": "Verwende den Block „Welt 0 0 0“, um dich zur Baubasis zu teleportieren.",
+          "pogromca": "Verwende den Block „Welt 0 0 0“ und teleportiere dich in die Höhe — ein sicherer Beobachtungspunkt.",
+          "farmer": "Verwende den Block „Welt 0 0 0“ und teleportiere dich in die Nähe von Wasser — der ideale Ort für eine Farm."
+        }
+      },
+      {
+        "title": "Arena mit zwei Parametern",
+        "desc": "Ändere die Funktion <code>arena</code> — baue ein Bauwerk mit den Maßen 3x4, 4x3 oder 5x10.",
+        "param": "Parameter: Zahl (length), Zahl (height)",
+        "hints": {
+          "budowniczy": "Ein Wasserbecken — verwende den Konstrukteur und fülle die Mitte mit Wasser.",
+          "pogromca": "Ein Lavabecken, also eine Monsterfalle — eine gefährliche Arena!",
+          "farmer": "Ein Ackerfeld — ein eingezäunter Ort zum Anbauen von Pflanzen."
+        }
+      }
+    ],
+    "bonus": [
+      {
+        "title": "Funktion inventory mit einer Liste von Gegenständen",
+        "desc": "Erstelle ein Array mit Gegenständen (z. B. ein Diamantschwert, einen Bogen, einen goldenen Apfel) und eine Funktion <code>inventory</code>, die dem Spieler jeden Gegenstand aus der Liste gibt.",
+        "param": "Parameter: Array (items)"
+      },
+      {
+        "title": "Komplettes Spiel — Arena und Kampf",
+        "desc": "Verbinde alle Funktionen in einem Aufruf: arena, inventory, spawn, weather. Teste das Spiel, indem du gegen Monster kämpfst. Wenn es zu leicht ist — füge mehr Mobs hinzu oder vergrößere die Arena.",
+        "param": "Verbindung aller Funktionen"
+      }
+    ]
+  }
+};
+
+  const JOBS = ['budowniczy', 'pogromca', 'farmer'];
+  const LANGS = ['pl', 'en', 'es', 'de'];
   const MAIN_TOTAL = 6;
   const ALL_TOTAL = 8;
   const state = new Array(ALL_TOTAL).fill(false);
   let currentJob = null;
+  let lang = 'pl';
+
+  const CHECK_SVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const pad = n => String(n).padStart(2, '0');
+
+  function cardHtml(index, num, item, bonus) {
+    const t = I18N[lang];
+    let hints = '';
+    if (item.hints) {
+      hints = '<div class="hint-content">' + JOBS.map(job =>
+        '<div class="hint-job-item" data-hint="' + job + '">' +
+          '<span class="hint-job-label">' + t.jobs[job] + '</span>' + item.hints[job] +
+        '</div>').join('') + '</div>';
+    }
+    return '<div class="challenge-card' + (bonus ? ' bonus' : '') + '" data-index="' + index + '">' +
+      '<div class="challenge-top">' +
+        '<div class="challenge-checkbox" onclick="toggleChallenge(' + index + ')">' + CHECK_SVG + '</div>' +
+        '<div class="challenge-content">' +
+          '<span class="challenge-num">' + num + '</span>' +
+          '<span class="challenge-title">' + item.title + '</span>' +
+          '<div class="challenge-desc">' + item.desc + '</div>' +
+          '<span class="param-tag">' + item.param + '</span>' +
+          hints +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderChallenges() {
+    const t = I18N[lang];
+    let html = t.challenges.map((c, i) => cardHtml(i, pad(i + 1), c, false)).join('');
+    html += '<hr class="section-divider"><div class="section-label bonus-label">' + t.bonusLabel + '</div>';
+    html += t.bonus.map((c, i) => cardHtml(MAIN_TOTAL + i, 'D' + (i + 1), c, true)).join('');
+    document.getElementById('challengeList').innerHTML = html;
+    // restore state after re-render (language change keeps ticks and the chosen job)
+    state.forEach((done, i) => {
+      const card = document.querySelector('.challenge-card[data-index="' + i + '"]');
+      if (card) card.classList.toggle('done', done);
+    });
+    applyJobHints();
+  }
+
+  function applyJobHints() {
+    document.querySelectorAll('.hint-job-item').forEach(item => {
+      item.classList.toggle('active-hint', item.dataset.hint === currentJob);
+    });
+    document.querySelectorAll('.hint-content').forEach(el => {
+      el.classList.toggle('visible', currentJob !== null);
+    });
+  }
 
   function selectJob(job) {
     currentJob = job;
@@ -597,12 +832,7 @@
     document.querySelectorAll('.job-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.job === job);
     });
-    document.querySelectorAll('.hint-job-item').forEach(item => {
-      item.classList.toggle('active-hint', item.dataset.hint === job);
-    });
-    document.querySelectorAll('.hint-content').forEach(el => {
-      el.classList.add('visible');
-    });
+    applyJobHints();
     document.getElementById('noJobMsg').classList.remove('show');
   }
 
@@ -620,6 +850,32 @@
     document.getElementById('progressFill').style.width = pct + '%';
     document.getElementById('progressBar').classList.toggle('complete', mainDone === MAIN_TOTAL);
   }
+
+  // ---- language switching ----
+  function setLang(l, persist = true) {
+    if (!LANGS.includes(l)) l = 'pl';
+    lang = l;
+    const t = I18N[l];
+    document.documentElement.lang = l;
+    document.title = t.title;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t[el.dataset.i18n]; });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t[el.dataset.i18nHtml]; });
+    document.querySelectorAll('[data-i18n-job]').forEach(el => { el.textContent = t.jobs[el.dataset.i18nJob]; });
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      const on = btn.dataset.lang === l;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    if (persist) { try { localStorage.setItem('steveChallengesLang', l); } catch (e) { /* storage unavailable */ } }
+    renderChallenges();
+    updateProgress();
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
+
+  let startLang = 'pl';
+  try { const saved = localStorage.getItem('steveChallengesLang'); if (LANGS.includes(saved)) startLang = saved; } catch (e) { /* storage unavailable */ }
+  setLang(startLang, false);
 </script>
 
 </body>
